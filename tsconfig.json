@@ -17,13 +17,33 @@
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "types": ["vitest/globals", "node"],
+    "types": [
+      "vitest/globals",
+      "node"
+    ],
     "paths": {
-      "@app/model": ["./libs/model/src/index.js"],
-      "@app/model/*": ["./libs/model/src/*"],
-      "@app/prisma": ["./libs/model/src/generated/prisma/client.js"],
-      "@app/prisma/*": ["./libs/model/src/generated/prisma/*"]
+      "@app/common": [
+        "./libs/common/src/index.js"
+      ],
+      "@app/common/*": [
+        "./libs/common/src/*"
+      ],
+      "@app/model": [
+        "./libs/model/src/index.js"
+      ],
+      "@app/model/*": [
+        "./libs/model/src/*"
+      ],
+      "@app/prisma": [
+        "./libs/model/src/generated/prisma/client.js"
+      ],
+      "@app/prisma/*": [
+        "./libs/model/src/generated/prisma/*"
+      ]
     }
   },
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
