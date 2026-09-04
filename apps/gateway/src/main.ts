@@ -23,6 +23,6 @@ async function bootstrap() {
         });
     }
 
-    await app.listen(process.env.GATEWAY_PORT ?? 3001);
+    await app.listen(Number(process.env.GATEWAY_PORT));
 }
 await bootstrap();

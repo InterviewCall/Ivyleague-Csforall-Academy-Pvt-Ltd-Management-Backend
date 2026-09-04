@@ -11,7 +11,7 @@
     "deploy": "nest deploy",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start identity-access --watch",
+    "start:identity": "nest start identity-access --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/identity-access/main.js",
     "lint": "oxlint apps/ libs/",

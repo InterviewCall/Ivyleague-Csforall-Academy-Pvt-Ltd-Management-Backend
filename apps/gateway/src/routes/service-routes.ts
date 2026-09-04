@@ -14,7 +14,7 @@ export interface ServiceRoute {
 }
 
 const identityAccess =
-    process.env.IDENTITY_ACCESS_URL ?? 'http://localhost:3000';
+    process.env.IDENTITY_ACCESS_URL ?? 'http://localhost:3001';
 
 export const serviceRoutes: ServiceRoute[] = [
     { prefix: '/api/v1/auth', upstream: identityAccess },

@@ -32,6 +32,6 @@ async function bootstrap() {
 
     app.useGlobalPipes(new StandardSchemaValidationPipe());
 
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(Number(process.env.IDENTITY_ACCESS_PORT));
 }
 await bootstrap();
