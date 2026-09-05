@@ -10,6 +10,7 @@ import { ModelService } from '@app/model';
 import {
     Brand,
     Prisma,
+    StaffRole,
     User,
     UserStatus,
     UserType,
@@ -21,6 +22,7 @@ import { InviteTokenService } from '../invite-token/invite-token.service.js';
 import { BrandRepository } from '../brand/brand.repository.js';
 import { UserBrandAccessRepository } from '../user-brand-access/user-brand-access.repository.js';
 import { GrantBrandAccessDto } from './dto/grant-brand-access.dto.js';
+import { GrantStaffRolesDto } from './dto/grant-staff-roles.dto.js';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto.js';
 import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
@@ -111,6 +113,34 @@ export class UserService {
         return brands;
     }
 
+    async grantRolesToStaff(
+        userPublicId: string,
+        payload: GrantStaffRolesDto,
+    ): Promise<{ publicId: string; roles: StaffRole[] }> {
+        const user: User | null =
+            await this.userRepository.findByPublicId(userPublicId);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (user.userType !== UserType.STAFF) {
+            throw new BadRequestException(
+                'Staff roles apply to staff accounts only',
+            );
+        }
+
+        await this.userStaffRepository.createMany(
+            payload.roles.map((role) => ({ userId: user.id, role })),
+            this.prisma,
+        );
+
+        return {
+            publicId: user.publicId,
+            roles: await this.userStaffRepository.findRolesByUserId(user.id),
+        };
+    }
+
     async grantBrandAccessToStaff(
         userPublicId: string,
         payload: GrantBrandAccessDto,
@@ -180,12 +210,10 @@ export class UserService {
                     tx,
                 );
 
-                for (const role of payload.roles) {
-                    await this.userStaffRepository.create(
-                        { role, user: { connect: { id: staff.id } } },
-                        tx,
-                    );
-                }
+                await this.userStaffRepository.createMany(
+                    payload.roles.map((role) => ({ userId: staff.id, role })),
+                    tx,
+                );
 
                 await this.inviteTokenRepository.create(
                     {

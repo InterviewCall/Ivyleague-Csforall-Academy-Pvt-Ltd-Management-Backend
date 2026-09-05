@@ -16,6 +16,10 @@ import {
     UpdateUserStatusDto,
     updateUserStatusSchema,
 } from './dto/update-user-status.dto.js';
+import {
+    GrantStaffRolesDto,
+    grantStaffRolesSchema,
+} from './dto/grant-staff-roles.dto.js';
 import { UserService } from './user.service.js';
 
 @Controller('users')
@@ -42,5 +46,13 @@ export class UserController {
         @Headers('x-user-id') actorUserId?: string,
     ) {
         return this.userService.updateUserStatus(publicId, payload, actorUserId);
+    }
+
+    @Post(':publicId/roles')
+    grantRoles(
+        @Param('publicId') publicId: string,
+        @Body({ schema: grantStaffRolesSchema }) payload: GrantStaffRolesDto,
+    ) {
+        return this.userService.grantRolesToStaff(publicId, payload);
     }
 }

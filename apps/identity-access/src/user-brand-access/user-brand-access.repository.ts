@@ -6,20 +6,11 @@ import { Injectable } from '@nestjs/common';
 export class UserBrandAccessRepository {
     constructor(private readonly prisma: ModelService) {}
 
-    /**
-     * `skipDuplicates` makes granting idempotent: re-granting a brand the staff
-     * member already has is a no-op rather than a unique-constraint failure that
-     * would abort the whole grant.
-     *
-     * Takes a client rather than a transaction specifically, so callers already
-     * inside a transaction (staff creation) can pass `tx` and callers that are
-     * not can pass the plain client — createMany is atomic on its own.
-     */
     createMany(
         data: Prisma.UserBrandAccessCreateManyInput[],
-        tx: Prisma.TransactionClient,
+        client: Prisma.TransactionClient,
     ): Promise<Prisma.BatchPayload> {
-        return tx.userBrandAccess.createMany({ data, skipDuplicates: true });
+        return client.userBrandAccess.createMany({ data, skipDuplicates: true });
     }
 
     deleteByUserAndBrand(
