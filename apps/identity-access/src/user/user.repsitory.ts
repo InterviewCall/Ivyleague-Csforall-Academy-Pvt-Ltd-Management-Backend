@@ -17,6 +17,10 @@ export class UserRepository {
         return tx.user.create({ data });
     }
 
+    findByPublicId(publicId: string): Promise<User | null> {
+        return this.prisma.user.findUnique({ where: { publicId } });
+    }
+
     findByEmail(email: string): Promise<User | null> {
         return this.prisma.user.findUnique({
             where: { email },

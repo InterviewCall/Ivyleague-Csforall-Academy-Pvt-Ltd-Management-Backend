@@ -16,6 +16,11 @@ const ADMIN_ONLY = ['ADMIN'] as const;
 
 export const accessRules: AccessRule[] = [
     { method: 'POST', path: '/api/v1/users/staff', roles: ADMIN_ONLY },
+    {
+        method: 'POST',
+        path: /^\/api\/v1\/users\/[^/]+\/brand-access$/,
+        roles: ADMIN_ONLY,
+    },
     { method: 'POST', path: '/api/v1/brands', roles: ADMIN_ONLY },
     {
         method: 'PATCH',

@@ -6,5 +6,6 @@ import { BrandRepository } from './brand.repository.js';
 @Module({
     controllers: [BrandController],
     providers: [BrandService, BrandRepository],
+    exports: [BrandRepository],
 })
 export class BrandModule {}
