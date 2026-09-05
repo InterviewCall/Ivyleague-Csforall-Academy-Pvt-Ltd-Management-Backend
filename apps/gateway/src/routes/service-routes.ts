@@ -18,6 +18,6 @@ const identityAccess =
 
 export const serviceRoutes: ServiceRoute[] = [
     { prefix: '/api/v1/auth', upstream: identityAccess },
-    { prefix: '/api/v1/user', upstream: identityAccess },
+    { prefix: '/api/v1/users', upstream: identityAccess },
     { prefix: '/api/v1/brands', upstream: identityAccess },
 ];

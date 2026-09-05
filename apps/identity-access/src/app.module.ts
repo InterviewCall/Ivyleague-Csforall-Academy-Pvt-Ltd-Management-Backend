@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module.js';
 import { UserModule } from './user/user.module.js';
 import { HashModule } from './hash/hash.module.js';
 import { BrandModule } from './brand/brand.module.js';
+import { UserStaffModule } from './user-staff/user-staff.module.js';
 
 @Module({
-    imports: [CommonModule, ModelModule, AuthModule, UserModule, HashModule, BrandModule],
+    imports: [CommonModule, ModelModule, AuthModule, UserModule, HashModule, BrandModule, UserStaffModule],
     controllers: [AppController],
     providers: [AppService],
 })
