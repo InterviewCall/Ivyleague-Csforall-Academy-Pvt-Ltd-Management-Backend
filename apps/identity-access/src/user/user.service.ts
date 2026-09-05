@@ -21,6 +21,7 @@ import { InviteTokenService } from '../invite-token/invite-token.service.js';
 import { BrandRepository } from '../brand/brand.repository.js';
 import { UserBrandAccessRepository } from '../user-brand-access/user-brand-access.repository.js';
 import { GrantBrandAccessDto } from './dto/grant-brand-access.dto.js';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto.js';
 import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
 import { UserRepository } from './user.repsitory.js';
@@ -39,6 +40,53 @@ export class UserService {
         private readonly brandRepository: BrandRepository,
         private readonly userBrandAccessRepository: UserBrandAccessRepository,
     ) {}
+
+    async updateUserStatus(
+        userPublicId: string,
+        payload: UpdateUserStatusDto,
+        actorUserId?: string,
+    ): Promise<{ publicId: string; fullName: string; status: UserStatus }> {
+        const user: User | null =
+            await this.userRepository.findByPublicId(userPublicId);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (actorUserId && actorUserId === String(user.id)) {
+            throw new BadRequestException(
+                'You cannot change the status of your own account',
+            );
+        }
+
+        if (
+            user.status === UserStatus.UNACTIVATED &&
+            payload.status === UserStatus.ACTIVE
+        ) {
+            throw new BadRequestException(
+                'This account has never been activated. It must be activated through its invitation link.',
+            );
+        }
+
+        if (user.status === payload.status) {
+            return {
+                publicId: user.publicId,
+                fullName: user.fullName,
+                status: user.status,
+            };
+        }
+
+        const updated: User = await this.userRepository.updateStatus(
+            user.id,
+            payload.status,
+        );
+
+        return {
+            publicId: updated.publicId,
+            fullName: updated.fullName,
+            status: updated.status,
+        };
+    }
 
     private async resolveBrandsByCode(codes: string[]): Promise<Brand[]> {
         if (codes.length === 0) {
@@ -63,7 +111,7 @@ export class UserService {
         return brands;
     }
 
-    async grantBrandAccess(
+    async grantBrandAccessToStaff(
         userPublicId: string,
         payload: GrantBrandAccessDto,
     ): Promise<{ publicId: string; brands: string[] }> {
