@@ -12,14 +12,18 @@ enum UserStatus {
 
 model User {
     id           Int        @id @default(autoincrement())
+    publicId     String     @unique @default(uuid()) @map("public_id") @db.Char(36)
     fullName     String     @map("full_name") @db.VarChar(150)
     email        String     @unique
     phone        String     @db.VarChar(50)
     passwordHash String
     userType     UserType
     status       UserStatus @default(UNACTIVATED)
+    brandId      Int?       @map("brand_id")
     createdAt    DateTime   @default(now()) @map("created_at")
     updatedAt    DateTime   @updatedAt @map("updated_at")
+
+    brand Brand? @relation(fields: [brandId], references: [id], onDelete: Restrict)
 
     @@map("users")
 }
@@ -34,6 +38,8 @@ model Brand {
     placementPackageCeiling Decimal  @map("placement_package_ceiling") @db.Decimal(12, 2)
     createdAt               DateTime @default(now()) @map("created_at")
     updatedAt               DateTime @updatedAt @map("updated_at")
+
+    users User[]
 
     @@map("brands")
 }
