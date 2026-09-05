@@ -4,6 +4,15 @@ enum UserType {
     ADMIN
 }
 
+enum StaffRole {
+    SALES
+    PSA
+    ACADEMIC_HEAD
+    FINANCE
+    TA
+    PLACEMENT_COORDINATOR
+}
+
 enum UserStatus {
     UNACTIVATED
     ACTIVE
@@ -23,7 +32,8 @@ model User {
     createdAt    DateTime   @default(now()) @map("created_at")
     updatedAt    DateTime   @updatedAt @map("updated_at")
 
-    brand Brand? @relation(fields: [brandId], references: [id], onDelete: Restrict)
+    brand      Brand?          @relation(fields: [brandId], references: [id], onDelete: Restrict)
+    staffRoles UserStaffRole[]
 
     @@map("users")
 }
@@ -42,4 +52,17 @@ model Brand {
     users User[]
 
     @@map("brands")
+}
+
+model UserStaffRole {
+    id        Int       @id @default(autoincrement())
+    userId    Int       @map("user_id")
+    role      StaffRole
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime  @updatedAt @map("updated_at")
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, role])
+    @@map("user_staff_roles")
 }
