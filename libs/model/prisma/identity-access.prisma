@@ -32,9 +32,10 @@ model User {
     createdAt    DateTime   @default(now()) @map("created_at")
     updatedAt    DateTime   @updatedAt @map("updated_at")
 
-    brand        Brand?          @relation(fields: [brandId], references: [id], onDelete: Restrict)
+    brand        Brand?            @relation(fields: [brandId], references: [id], onDelete: Restrict)
     staffRoles   UserStaffRole[]
     inviteTokens InviteToken[]
+    brandAccess  UserBrandAccess[]
 
     @@map("users")
 }
@@ -50,7 +51,8 @@ model Brand {
     createdAt               DateTime @default(now()) @map("created_at")
     updatedAt               DateTime @updatedAt @map("updated_at")
 
-    users User[]
+    users       User[]
+    staffAccess UserBrandAccess[]
 
     @@map("brands")
 }
@@ -80,4 +82,18 @@ model InviteToken {
 
     @@index([userId])
     @@map("invite_tokens")
+}
+
+model UserBrandAccess {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @map("user_id")
+    brandId   Int      @map("brand_id")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, brandId])
+    @@map("user_brand_access")
 }
