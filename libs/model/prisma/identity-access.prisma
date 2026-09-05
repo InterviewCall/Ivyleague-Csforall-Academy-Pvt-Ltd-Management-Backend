@@ -23,3 +23,17 @@ model User {
 
     @@map("users")
 }
+
+model Brand {
+    id                      Int      @id @default(autoincrement())
+    code                    String   @unique @db.VarChar(50)
+    name                    String   @db.VarChar(100)
+    baseFee                 Decimal  @map("base_fee") @db.Decimal(12, 2)
+    gstInclusive            Boolean  @map("gst_inclusive")
+    gstRate                 Decimal  @default(18.00) @map("gst_rate") @db.Decimal(5, 2)
+    placementPackageCeiling Decimal  @map("placement_package_ceiling") @db.Decimal(12, 2)
+    createdAt               DateTime @default(now()) @map("created_at")
+    updatedAt               DateTime @updatedAt @map("updated_at")
+
+    @@map("brands")
+}
