@@ -2,6 +2,7 @@ import type { JwtService } from '@nestjs/jwt';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { isPublicPath } from './public-paths.js';
+import { findAccessRule } from './route-access.js';
 
 /** Headers the gateway sets itself. Never trusted from the client. */
 const FORWARDED_IDENTITY_HEADERS = ['x-user-id', 'x-user-role'] as const;
@@ -11,14 +12,6 @@ export interface AccessTokenPayload {
     role: string;
 }
 
-/**
- * Gateway-wide authentication (NFR-1): one local signature check per request,
- * no network round-trip and no per-endpoint wiring.
- *
- * Registered as an `onRequest` hook so it runs before @fastify/http-proxy's
- * handler. A Nest guard cannot be used here — proxied requests never enter
- * Nest's pipeline, so a guard would silently never execute.
- */
 export function registerJwtAuthHook(
     instance: FastifyInstance,
     jwtService: JwtService,
@@ -38,7 +31,9 @@ export function registerJwtAuthHook(
                 delete request.headers[header];
             }
 
-            if (isPublicPath(request.url.split('?')[0])) {
+            const pathname = request.url.split('?')[0];
+
+            if (isPublicPath(pathname)) {
                 return;
             }
 
@@ -52,12 +47,10 @@ export function registerJwtAuthHook(
                 });
             }
 
-            try {
-                const payload =
-                    await jwtService.verifyAsync<AccessTokenPayload>(token);
+            let payload: AccessTokenPayload;
 
-                request.headers['x-user-id'] = String(payload.userId);
-                request.headers['x-user-role'] = String(payload.role);
+            try {
+                payload = await jwtService.verifyAsync<AccessTokenPayload>(token);
             } catch {
                 return reply.code(401).send({
                     success: false,
@@ -65,6 +58,20 @@ export function registerJwtAuthHook(
                     message: 'Invalid or expired token',
                 });
             }
+
+            const role = String(payload.role);
+            const rule = findAccessRule(request.method, pathname);
+
+            if (rule && !rule.roles.includes(role)) {
+                return reply.code(403).send({
+                    success: false,
+                    statusCode: 403,
+                    message: 'You do not have permission to perform this action',
+                });
+            }
+
+            request.headers['x-user-id'] = String(payload.userId);
+            request.headers['x-user-role'] = role;
         },
     );
 }
