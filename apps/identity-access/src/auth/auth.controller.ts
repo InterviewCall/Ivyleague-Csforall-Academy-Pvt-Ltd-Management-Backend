@@ -3,12 +3,17 @@ import {
     Controller,
     HttpCode,
     HttpStatus,
+    Param,
     Post,
     Res,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 
 import { AuthService } from './auth.service.js';
+import {
+    ActivateAccountDto,
+    activateAccountSchema,
+} from './dto/activate-account.dto.js';
 import { SignInDto, signInSchema } from './dto/sign-in.dto.js';
 
 @Controller('auth')
@@ -32,5 +37,14 @@ export class AuthController {
         });
 
         return { message: 'Signed in' };
+    }
+
+    @Post('invite/:token/activate')
+    @HttpCode(HttpStatus.OK)
+    activateAccount(
+        @Param('token') token: string,
+        @Body({ schema: activateAccountSchema }) payload: ActivateAccountDto,
+    ) {
+        return this.authService.activateAccount(token, payload);
     }
 }

@@ -5,11 +5,13 @@ import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
 import { UserModule } from '../user/user.module.js';
 import { HashModule } from '../hash/hash.module.js';
+import { InviteTokenModule } from '../invite-token/invite-token.module.js';
 
 @Module({
     imports: [
         UserModule,
         HashModule,
+        InviteTokenModule,
         JwtModule.registerAsync({
             global: true,
             useFactory: () => ({
