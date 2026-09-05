@@ -40,13 +40,29 @@ export class UserService {
         private readonly userBrandAccessRepository: UserBrandAccessRepository,
     ) {}
 
-    /**
-     * Grants a staff member access to one or more brands (doc §3,
-     * POST /users/:id/brand-access, Admin).
-     *
-     * Idempotent: re-granting a brand they already have changes nothing and
-     * still returns their full brand list.
-     */
+    private async resolveBrandsByCode(codes: string[]): Promise<Brand[]> {
+        if (codes.length === 0) {
+            return [];
+        }
+
+        const brands: Brand[] =
+            await this.brandRepository.findManyByCodes(codes);
+
+        const resolved: Set<string> = new Set(
+            brands.map((brand) => brand.code),
+        );
+
+        const unknown: string[] = codes.filter((code) => !resolved.has(code));
+
+        if (unknown.length > 0) {
+            throw new NotFoundException(
+                `Unknown brand code(s): ${unknown.join(', ')}`,
+            );
+        }
+
+        return brands;
+    }
+
     async grantBrandAccess(
         userPublicId: string,
         payload: GrantBrandAccessDto,
@@ -64,23 +80,9 @@ export class UserService {
             );
         }
 
-        const brands: Brand[] = await this.brandRepository.findManyByCodes(
+        const brands: Brand[] = await this.resolveBrandsByCode(
             payload.brandCodes,
         );
-
-        const resolved: Set<string> = new Set(
-            brands.map((brand) => brand.code),
-        );
-
-        const unknown: string[] = payload.brandCodes.filter(
-            (code) => !resolved.has(code),
-        );
-
-        if (unknown.length > 0) {
-            throw new NotFoundException(
-                `Unknown brand code(s): ${unknown.join(', ')}`,
-            );
-        }
 
         await this.userBrandAccessRepository.createMany(
             brands.map((brand) => ({ userId: user.id, brandId: brand.id })),
@@ -110,11 +112,15 @@ export class UserService {
             randomBytes(32).toString('hex'),
         );
 
+        const brands: Brand[] = await this.resolveBrandsByCode(
+            payload.brandCodes,
+        );
+
         const invite: IssuedInviteToken = this.inviteTokenService.issue();
 
         try {
             return await this.prisma.$transaction(async (tx) => {
-                const user: User = await this.userRepository.create(
+                const staff: User = await this.userRepository.create(
                     {
                         fullName: payload.fullName,
                         email: payload.email,
@@ -128,7 +134,7 @@ export class UserService {
 
                 for (const role of payload.roles) {
                     await this.userStaffRepository.create(
-                        { role, user: { connect: { id: user.id } } },
+                        { role, user: { connect: { id: staff.id } } },
                         tx,
                     );
                 }
@@ -137,18 +143,29 @@ export class UserService {
                     {
                         tokenHash: invite.tokenHash,
                         expiresAt: invite.expiresAt,
-                        user: { connect: { id: user.id } },
+                        user: { connect: { id: staff.id } },
                     },
                     tx,
                 );
 
+                if (brands.length > 0) {
+                    await this.userBrandAccessRepository.createMany(
+                        brands.map((brand) => ({
+                            userId: staff.id,
+                            brandId: brand.id,
+                        })),
+                        tx,
+                    );
+                }
+
                 return {
-                    publicId: user.publicId,
-                    fullName: user.fullName,
-                    email: user.email,
-                    phone: user.phone,
-                    status: user.status,
+                    publicId: staff.publicId,
+                    fullName: staff.fullName,
+                    email: staff.email,
+                    phone: staff.phone,
+                    status: staff.status,
                     roles: payload.roles,
+                    brands: brands.map((brand) => brand.code),
                     activationUrl: this.inviteTokenService.buildActivationUrl(
                         invite.token,
                     ),

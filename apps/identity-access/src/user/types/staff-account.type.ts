@@ -7,11 +7,7 @@ export type StaffAccount = {
     phone: string;
     status: UserStatus;
     roles: StaffRole[];
-    /**
-     * Interim delivery: an admin shares this with the new staff member until the
-     * Notification service can email it. Drop this field (and activationExpiresAt)
-     * once invitations are sent automatically — nothing else about the flow changes.
-     */
+    brands: string[];
     activationUrl: string;
     activationExpiresAt: Date;
 };

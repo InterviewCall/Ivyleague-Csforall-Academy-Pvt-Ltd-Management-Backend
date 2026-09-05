@@ -21,12 +21,23 @@ export const createStaffSchema = z.object({
         .min(10, 'phone must be at least 10 characters')
         .max(10, 'phone must be at most 10 characters'),
 
-    // Doc §3: "Create a staff account with initial role(s)" — a staff account
-    // without a role could reach nothing, so at least one is required.
     roles: z
         .array(z.enum(StaffRole), { error: 'roles is required' })
         .min(1, 'at least one role is required')
         .transform((roles) => [...new Set(roles)]),
+
+    brandCodes: z
+        .array(
+            z
+                .string()
+                .trim()
+                .min(2, 'brand code must be at least 2 characters')
+                .max(50, 'brand code must be at most 50 characters')
+                .transform((code) => code.toUpperCase()),
+        )
+        .transform((codes) => [...new Set(codes)])
+        .optional()
+        .default([]),
 });
 
 export class CreateStaffDto implements z.infer<typeof createStaffSchema> {
@@ -34,4 +45,5 @@ export class CreateStaffDto implements z.infer<typeof createStaffSchema> {
     email: string;
     phone: string;
     roles: StaffRole[];
+    brandCodes: string[];
 }
