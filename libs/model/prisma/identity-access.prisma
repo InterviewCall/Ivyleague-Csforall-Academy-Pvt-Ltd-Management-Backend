@@ -19,6 +19,17 @@ enum TokenPurpose {
     PASSWORD_RESET
 }
 
+enum TcDocument {
+    PAYMENT_TERMS
+    PROGRAMME_TERMS
+}
+
+enum OutboxStatus {
+    PENDING
+    PUBLISHED
+    FAILED
+}
+
 enum UserStatus {
     UNACTIVATED
     ACTIVE
@@ -38,10 +49,11 @@ model User {
     createdAt    DateTime   @default(now()) @map("created_at")
     updatedAt    DateTime   @updatedAt @map("updated_at")
 
-    brand        Brand?            @relation(fields: [brandId], references: [id], onDelete: Restrict)
-    staffRoles   UserStaffRole[]
-    accessTokens AccessToken[]
-    brandAccess  UserBrandAccess[]
+    brand         Brand?            @relation(fields: [brandId], references: [id], onDelete: Restrict)
+    staffRoles    UserStaffRole[]
+    accessTokens  AccessToken[]
+    brandAccess   UserBrandAccess[]
+    tcAcceptances TcAcceptance[]
 
     @@map("users")
 }
@@ -103,4 +115,70 @@ model UserBrandAccess {
 
     @@unique([userId, brandId])
     @@map("user_brand_access")
+}
+
+/// The terms as published. Immutable once live: correcting wording means
+/// publishing a new version, never updating this row — that is what makes an
+/// acceptance recorded against it mean anything.
+model TcVersion {
+    id              Int        @id @default(autoincrement())
+    document        TcDocument
+    version         String     @db.VarChar(20)
+    /// null = applies to every brand; set = that brand's own terms.
+    brandId         Int?       @map("brand_id")
+    content         String     @db.Text
+    contentHash     String     @map("content_hash") @db.Char(64)
+    publishedAt     DateTime   @map("published_at")
+    createdByUserId Int        @map("created_by_user_id")
+    createdAt       DateTime   @default(now()) @map("created_at")
+
+    acceptances TcAcceptance[]
+
+    @@unique([brandId, document, version])
+    @@index([document, publishedAt])
+    @@map("tc_versions")
+}
+
+model TcAcceptance {
+    id             Int       @id @default(autoincrement())
+    userId         Int       @map("user_id")
+    tcVersionId    Int       @map("tc_version_id")
+    acceptedAt     DateTime  @default(now()) @map("accepted_at")
+    ipAddress      String    @map("ip_address") @db.VarChar(45)
+    userAgent      String?   @map("user_agent") @db.VarChar(512)
+    pdfStorageKey  String?   @map("pdf_storage_key") @db.VarChar(512)
+    pdfHash        String?   @map("pdf_hash") @db.Char(64)
+    pdfGeneratedAt DateTime? @map("pdf_generated_at")
+
+    user      User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+    tcVersion TcVersion @relation(fields: [tcVersionId], references: [id], onDelete: Restrict)
+
+    @@unique([userId, tcVersionId])
+    @@index([userId, acceptedAt])
+    @@map("tc_acceptances")
+}
+
+/// Transactional outbox. The event row is written in the same transaction as
+/// the change that caused it, so the record and the intent to notify commit
+/// together; a worker publishes to BullMQ afterwards and retries until it
+/// succeeds. Without this, enqueueing inside the transaction can email terms
+/// that were rolled back, and enqueueing after it can lose the email entirely.
+model OutboxEvent {
+    id            Int          @id @default(autoincrement())
+    /// Event name from SRS §8.1, e.g. "learner.invite_ready".
+    eventType     String       @map("event_type") @db.VarChar(100)
+    /// What the event is about, for tracing and replay.
+    aggregateType String       @map("aggregate_type") @db.VarChar(50)
+    aggregateId   Int          @map("aggregate_id")
+    payload       Json
+    status        OutboxStatus @default(PENDING)
+    attempts      Int          @default(0)
+    lastError     String?      @map("last_error") @db.Text
+    availableAt   DateTime     @default(now()) @map("available_at")
+    publishedAt   DateTime?    @map("published_at")
+    createdAt     DateTime     @default(now()) @map("created_at")
+
+    /// The worker's claim query: oldest pending rows that are due.
+    @@index([status, availableAt])
+    @@map("outbox_events")
 }
