@@ -1,10 +1,3 @@
-import { ModelService } from '@app/model';
-import {
-    AccessToken,
-    TokenPurpose,
-    User,
-    UserStatus,
-} from '@app/model/generated/prisma/client.js';
 import {
     BadRequestException,
     Injectable,
@@ -12,9 +5,21 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
+import { ModelService } from '@app/model';
+import { AccessRole } from '@app/rbac';
+
+import {
+    AccessToken,
+    TokenPurpose,
+    User,
+    UserStatus,
+    UserType,
+} from '@app/model/generated/prisma/client.js';
+
 import { HashService } from '../hash/hash.service.js';
 import { AccessTokenRepository } from '../access-token/access-token.repository.js';
 import { AccessTokenService } from '../access-token/access-token.service.js';
+import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { UserRepository } from '../user/user.repsitory.js';
 import { ActivateAccountDto } from './dto/activate-account.dto.js';
 import { SignInDto } from './dto/sign-in.dto.js';
@@ -26,6 +31,7 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly hashService: HashService,
         private readonly userRepository: UserRepository,
+        private readonly userStaffRepository: UserStaffRepository,
         private readonly accessTokenRepository: AccessTokenRepository,
         private readonly accessTokenService: AccessTokenService,
     ) {}
@@ -50,10 +56,20 @@ export class AuthService {
                 'This account is not active. Use your activation link to set a password.',
             );
         }
+        
+        const staffRoles = await this.userStaffRepository.findRolesByUserId(
+            existingUser.id,
+        );
+
+        const roles: string[] =
+            existingUser.userType === UserType.ADMIN
+                ? [AccessRole.ADMIN, ...staffRoles]
+                : staffRoles;
 
         return this.jwtService.signAsync({
             userId: existingUser.id,
-            role: existingUser.userType,
+            userType: existingUser.userType,
+            roles,
         });
     }
 

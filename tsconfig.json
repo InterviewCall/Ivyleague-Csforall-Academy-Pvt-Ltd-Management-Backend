@@ -39,6 +39,12 @@
       ],
       "@app/prisma/*": [
         "./libs/model/src/generated/prisma/*"
+      ],
+      "@app/rbac": [
+        "./libs/rbac/src/index.js"
+      ],
+      "@app/rbac/*": [
+        "./libs/rbac/src/*"
       ]
     }
   },

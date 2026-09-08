@@ -1,11 +1,7 @@
-import {
-    Body,
-    Controller,
-    Headers,
-    Param,
-    Patch,
-    Post,
-} from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+
+import { AccessRole, CurrentUser, Roles } from '@app/rbac';
+import type { Principal } from '@app/rbac';
 
 import { CreateStaffDto, createStaffSchema } from './dto/create-staff.dto.js';
 import {
@@ -26,11 +22,13 @@ import { UserService } from './user.service.js';
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
+    @Roles(AccessRole.ADMIN)
     @Post('staff')
     createStaff(@Body({ schema: createStaffSchema }) payload: CreateStaffDto) {
         return this.userService.createStaff(payload);
     }
 
+    @Roles(AccessRole.ADMIN)
     @Post(':publicId/brand-access')
     grantBrandAccess(
         @Param('publicId') publicId: string,
@@ -39,15 +37,21 @@ export class UserController {
         return this.userService.grantBrandAccessToStaff(publicId, payload);
     }
 
+    @Roles(AccessRole.ADMIN)
     @Patch(':publicId/status')
     updateStatus(
         @Param('publicId') publicId: string,
         @Body({ schema: updateUserStatusSchema }) payload: UpdateUserStatusDto,
-        @Headers('x-user-id') actorUserId?: string,
+        @CurrentUser() actor?: Principal,
     ) {
-        return this.userService.updateUserStatus(publicId, payload, actorUserId);
+        return this.userService.updateUserStatus(
+            publicId,
+            payload,
+            actor?.userId,
+        );
     }
 
+    @Roles(AccessRole.ADMIN)
     @Post(':publicId/roles')
     grantRoles(
         @Param('publicId') publicId: string,

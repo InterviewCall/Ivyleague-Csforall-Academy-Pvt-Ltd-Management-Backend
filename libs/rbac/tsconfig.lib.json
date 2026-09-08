@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "rootDir": "../..",
+    "outDir": "../../dist/libs/rbac"
+  },
+  "include": ["src/**/*", "../model/src/generated/prisma/enums.ts"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

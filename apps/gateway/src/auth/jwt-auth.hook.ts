@@ -5,11 +5,15 @@ import { isPublicPath } from './public-paths.js';
 import { findAccessRule } from './route-access.js';
 
 /** Headers the gateway sets itself. Never trusted from the client. */
-const FORWARDED_IDENTITY_HEADERS = ['x-user-id', 'x-user-role'] as const;
+const FORWARDED_IDENTITY_HEADERS = [
+    'x-user-id',
+    'x-user-roles',
+] as const;
 
 export interface AccessTokenPayload {
     userId: string;
-    role: string;
+    userType: string;
+    roles: string[];
 }
 
 export function registerJwtAuthHook(
@@ -59,10 +63,21 @@ export function registerJwtAuthHook(
                 });
             }
 
-            const role = String(payload.role);
+            const roles = Array.isArray(payload.roles)
+                ? payload.roles.map(String)
+                : [];
+
             const rule = findAccessRule(request.method, pathname);
 
-            if (rule && !rule.roles.includes(role)) {
+            // ADMIN satisfies a rule without being listed, matching the
+            // service-layer guard. Routes the SRS marks "only" are enforced by
+            // the owning service with @RolesOnly, which admits no override.
+            const permitted =
+                !rule ||
+                rule.roles.some((role) => roles.includes(role)) ||
+                roles.includes('ADMIN');
+
+            if (!permitted) {
                 return reply.code(403).send({
                     success: false,
                     statusCode: 403,
@@ -71,7 +86,7 @@ export function registerJwtAuthHook(
             }
 
             request.headers['x-user-id'] = String(payload.userId);
-            request.headers['x-user-role'] = role;
+            request.headers['x-user-roles'] = roles.join(',');
         },
     );
 }

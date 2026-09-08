@@ -5,12 +5,14 @@ import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
 import { UserModule } from '../user/user.module.js';
 import { HashModule } from '../hash/hash.module.js';
+import { UserStaffModule } from '../user-staff/user-staff.module.js';
 import { AccessTokenModule } from '../access-token/access-token.module.js';
 
 @Module({
     imports: [
         UserModule,
         HashModule,
+        UserStaffModule,
         AccessTokenModule,
         JwtModule.registerAsync({
             global: true,
