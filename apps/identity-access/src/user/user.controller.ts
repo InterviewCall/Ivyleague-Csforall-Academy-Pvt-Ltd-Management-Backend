@@ -26,7 +26,7 @@ import { UserService } from './user.service.js';
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @Roles(AccessRole.SALES, AccessRole.ACADEMIC_HEAD)
+    @Roles(AccessRole.SALES)
     @Post('learners')
     createLearner(
         @Body({ schema: createLearnerSchema }) payload: CreateLearnerDto,

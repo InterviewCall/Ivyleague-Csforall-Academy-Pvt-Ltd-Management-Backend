@@ -19,7 +19,7 @@ export const accessRules: AccessRule[] = [
     {
         method: 'POST',
         path: '/api/v1/users/learners',
-        roles: ['SALES', 'ACADEMIC_HEAD'],
+        roles: ['SALES'],
     },
     {
         method: 'POST',
