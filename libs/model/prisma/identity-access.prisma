@@ -45,11 +45,9 @@ model User {
     passwordHash String
     userType     UserType
     status       UserStatus @default(UNACTIVATED)
-    brandId      Int?       @map("brand_id")
     createdAt    DateTime   @default(now()) @map("created_at")
     updatedAt    DateTime   @updatedAt @map("updated_at")
 
-    brand         Brand?            @relation(fields: [brandId], references: [id], onDelete: Restrict)
     staffRoles    UserStaffRole[]
     accessTokens  AccessToken[]
     brandAccess   UserBrandAccess[]
@@ -69,7 +67,6 @@ model Brand {
     createdAt               DateTime @default(now()) @map("created_at")
     updatedAt               DateTime @updatedAt @map("updated_at")
 
-    users       User[]
     staffAccess UserBrandAccess[]
 
     @@map("brands")

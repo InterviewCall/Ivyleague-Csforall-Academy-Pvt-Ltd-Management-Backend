@@ -3,6 +3,10 @@ import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
 import { AccessRole, CurrentUser, Roles } from '@app/rbac';
 import type { Principal } from '@app/rbac';
 
+import {
+    CreateLearnerDto,
+    createLearnerSchema,
+} from './dto/create-learner.dto.js';
 import { CreateStaffDto, createStaffSchema } from './dto/create-staff.dto.js';
 import {
     GrantBrandAccessDto,
@@ -21,6 +25,14 @@ import { UserService } from './user.service.js';
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
+
+    @Roles(AccessRole.SALES, AccessRole.ACADEMIC_HEAD)
+    @Post('learners')
+    createLearner(
+        @Body({ schema: createLearnerSchema }) payload: CreateLearnerDto,
+    ) {
+        return this.userService.createLearner(payload);
+    }
 
     @Roles(AccessRole.ADMIN)
     @Post('staff')

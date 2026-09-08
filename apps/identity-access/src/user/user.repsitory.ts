@@ -12,9 +12,9 @@ export class UserRepository {
 
     create(
         data: Prisma.UserCreateInput,
-        tx: Prisma.TransactionClient,
+        client: Prisma.TransactionClient,
     ): Promise<User> {
-        return tx.user.create({ data });
+        return client.user.create({ data });
     }
 
     findByPublicId(publicId: string): Promise<User | null> {

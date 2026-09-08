@@ -27,8 +27,10 @@ import { GrantStaffRolesDto } from './dto/grant-staff-roles.dto.js';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto.js';
 import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
+import { CreateLearnerDto } from './dto/create-learner.dto.js';
 import { UserRepository } from './user.repsitory.js';
 import { StaffAccount } from './types/staff-account.type.js';
+import { LearnerAccount } from './types/learner-account.type.js';
 import { IssuedAccessToken } from '../access-token/types/issues-access-token.type.js';
 
 @Injectable()
@@ -88,6 +90,54 @@ export class UserService {
             publicId: updated.publicId,
             fullName: updated.fullName,
             status: updated.status,
+        };
+    }
+
+    async createLearner(payload: CreateLearnerDto): Promise<LearnerAccount> {
+        const existing: User | null = await this.userRepository.findByEmail(
+            payload.email,
+        );
+
+        if (existing) {
+            if (existing.userType !== UserType.LEARNER) {
+                throw new ConflictException(
+                    'This email belongs to a staff account and cannot be enrolled as a learner',
+                );
+            }
+
+            return {
+                publicId: existing.publicId,
+                fullName: existing.fullName,
+                email: existing.email,
+                phone: existing.phone,
+                status: existing.status,
+                created: false,
+            };
+        }
+
+        const passwordHash = await this.hashService.hash(
+            randomBytes(32).toString('hex'),
+        );
+
+        const learner: User = await this.userRepository.create(
+            {
+                fullName: payload.fullName,
+                email: payload.email,
+                phone: payload.phone,
+                passwordHash,
+                userType: UserType.LEARNER,
+                status: UserStatus.UNACTIVATED,
+            },
+            this.prisma,
+        );
+
+        return {
+            publicId: learner.publicId,
+            fullName: learner.fullName,
+            email: learner.email,
+            phone: learner.phone,
+            status: learner.status,
+            created: true,
         };
     }
 
