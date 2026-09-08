@@ -11,14 +11,15 @@ import {
     Brand,
     Prisma,
     StaffRole,
+    TokenPurpose,
     User,
     UserStatus,
     UserType,
 } from '@app/model/generated/prisma/client.js';
 
 import { HashService } from '../hash/hash.service.js';
-import { InviteTokenRepository } from '../invite-token/invite-token.repository.js';
-import { InviteTokenService } from '../invite-token/invite-token.service.js';
+import { AccessTokenRepository } from '../access-token/access-token.repository.js';
+import { AccessTokenService } from '../access-token/access-token.service.js';
 import { BrandRepository } from '../brand/brand.repository.js';
 import { UserBrandAccessRepository } from '../user-brand-access/user-brand-access.repository.js';
 import { GrantBrandAccessDto } from './dto/grant-brand-access.dto.js';
@@ -28,7 +29,7 @@ import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
 import { UserRepository } from './user.repsitory.js';
 import { StaffAccount } from './types/staff-account.type.js';
-import { IssuedInviteToken } from '../invite-token/types/issues-invite-token.type.js';
+import { IssuedAccessToken } from '../access-token/types/issues-access-token.type.js';
 
 @Injectable()
 export class UserService {
@@ -37,8 +38,8 @@ export class UserService {
         private readonly userRepository: UserRepository,
         private readonly userStaffRepository: UserStaffRepository,
         private readonly hashService: HashService,
-        private readonly inviteTokenRepository: InviteTokenRepository,
-        private readonly inviteTokenService: InviteTokenService,
+        private readonly accessTokenRepository: AccessTokenRepository,
+        private readonly accessTokenService: AccessTokenService,
         private readonly brandRepository: BrandRepository,
         private readonly userBrandAccessRepository: UserBrandAccessRepository,
     ) {}
@@ -194,7 +195,7 @@ export class UserService {
             payload.brandCodes,
         );
 
-        const invite: IssuedInviteToken = this.inviteTokenService.issue();
+        const invite: IssuedAccessToken = this.accessTokenService.issue();
 
         try {
             return await this.prisma.$transaction(async (tx) => {
@@ -215,9 +216,10 @@ export class UserService {
                     tx,
                 );
 
-                await this.inviteTokenRepository.create(
+                await this.accessTokenRepository.create(
                     {
                         tokenHash: invite.tokenHash,
+                        purpose: TokenPurpose.ACTIVATION,
                         expiresAt: invite.expiresAt,
                         user: { connect: { id: staff.id } },
                     },
@@ -242,7 +244,7 @@ export class UserService {
                     status: staff.status,
                     roles: payload.roles,
                     brands: brands.map((brand) => brand.code),
-                    activationUrl: this.inviteTokenService.buildActivationUrl(
+                    activationUrl: this.accessTokenService.buildActivationUrl(
                         invite.token,
                     ),
                     activationExpiresAt: invite.expiresAt,

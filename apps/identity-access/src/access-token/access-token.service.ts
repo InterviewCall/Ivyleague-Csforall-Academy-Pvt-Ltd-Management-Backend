@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'crypto';
 
-import { IssuedInviteToken } from './types/issues-invite-token.type.js';
+import { IssuedAccessToken } from './types/issues-access-token.type.js';
 import { DEFAULT_TTL_HOURS } from './constants/index.js';
 
 @Injectable()
-export class InviteTokenService {
+export class AccessTokenService {
     hash(token: string): string {
         return createHash('sha256').update(token).digest('hex');
     }
 
-    issue(): IssuedInviteToken {
+    issue(): IssuedAccessToken {
         const token = randomBytes(32).toString('base64url');
         const ttlHours =
             Number(process.env.INVITE_TOKEN_TTL_HOURS) || DEFAULT_TTL_HOURS;
@@ -24,8 +24,7 @@ export class InviteTokenService {
 
     buildActivationUrl(token: string): string {
         const base =
-            process.env.ACTIVATION_URL_BASE ??
-            'http://localhost:4000/activate';
+            process.env.ACTIVATION_URL_BASE ?? 'http://localhost:4000/activate';
 
         return `${base}/${token}`;
     }

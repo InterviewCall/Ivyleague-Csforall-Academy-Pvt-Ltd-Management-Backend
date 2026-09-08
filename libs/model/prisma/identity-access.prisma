@@ -13,6 +13,12 @@ enum StaffRole {
     PLACEMENT_COORDINATOR
 }
 
+enum TokenPurpose {
+    PAYMENT
+    ACTIVATION
+    PASSWORD_RESET
+}
+
 enum UserStatus {
     UNACTIVATED
     ACTIVE
@@ -34,7 +40,7 @@ model User {
 
     brand        Brand?            @relation(fields: [brandId], references: [id], onDelete: Restrict)
     staffRoles   UserStaffRole[]
-    inviteTokens InviteToken[]
+    accessTokens AccessToken[]
     brandAccess  UserBrandAccess[]
 
     @@map("users")
@@ -70,18 +76,19 @@ model UserStaffRole {
     @@map("user_staff_roles")
 }
 
-model InviteToken {
-    id        Int       @id @default(autoincrement())
-    userId    Int       @map("user_id")
-    tokenHash String    @unique @map("token_hash") @db.Char(64)
-    expiresAt DateTime  @map("expires_at")
-    usedAt    DateTime? @map("used_at")
-    createdAt DateTime  @default(now()) @map("created_at")
+model AccessToken {
+    id        Int          @id @default(autoincrement())
+    userId    Int          @map("user_id")
+    tokenHash String       @unique @map("token_hash") @db.Char(64)
+    purpose   TokenPurpose
+    expiresAt DateTime     @map("expires_at")
+    usedAt    DateTime?    @map("used_at")
+    createdAt DateTime     @default(now()) @map("created_at")
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
-    @@map("invite_tokens")
+    @@index([userId, purpose])
+    @@map("access_tokens")
 }
 
 model UserBrandAccess {

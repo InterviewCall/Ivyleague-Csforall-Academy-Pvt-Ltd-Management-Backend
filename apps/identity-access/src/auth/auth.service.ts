@@ -1,6 +1,7 @@
 import { ModelService } from '@app/model';
 import {
-    InviteToken,
+    AccessToken,
+    TokenPurpose,
     User,
     UserStatus,
 } from '@app/model/generated/prisma/client.js';
@@ -12,8 +13,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 
 import { HashService } from '../hash/hash.service.js';
-import { InviteTokenRepository } from '../invite-token/invite-token.repository.js';
-import { InviteTokenService } from '../invite-token/invite-token.service.js';
+import { AccessTokenRepository } from '../access-token/access-token.repository.js';
+import { AccessTokenService } from '../access-token/access-token.service.js';
 import { UserRepository } from '../user/user.repsitory.js';
 import { ActivateAccountDto } from './dto/activate-account.dto.js';
 import { SignInDto } from './dto/sign-in.dto.js';
@@ -25,8 +26,8 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly hashService: HashService,
         private readonly userRepository: UserRepository,
-        private readonly inviteTokenRepository: InviteTokenRepository,
-        private readonly inviteTokenService: InviteTokenService,
+        private readonly accessTokenRepository: AccessTokenRepository,
+        private readonly accessTokenService: AccessTokenService,
     ) {}
 
     async signIn(payload: SignInDto): Promise<string> {
@@ -60,9 +61,12 @@ export class AuthService {
         token: string,
         payload: ActivateAccountDto,
     ): Promise<{ activated: true }> {
-        const tokenHash = this.inviteTokenService.hash(token);
-        const inviteToken: InviteToken | null =
-            await this.inviteTokenRepository.findByTokenHash(tokenHash);
+        const tokenHash = this.accessTokenService.hash(token);
+        const inviteToken: AccessToken | null =
+            await this.accessTokenRepository.findByTokenHashAndPurpose(
+                tokenHash,
+                TokenPurpose.ACTIVATION,
+            );
 
         if (
             !inviteToken ||
@@ -79,7 +83,7 @@ export class AuthService {
         );
 
         await this.prisma.$transaction(async (tx) => {
-            await this.inviteTokenRepository.markUsed(inviteToken.id, tx);
+            await this.accessTokenRepository.markUsed(inviteToken.id, tx);
 
             await this.userRepository.activate(
                 inviteToken.userId,
