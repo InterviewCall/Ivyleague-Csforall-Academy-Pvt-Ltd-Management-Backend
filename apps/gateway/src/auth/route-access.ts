@@ -36,6 +36,7 @@ export const accessRules: AccessRule[] = [
         path: /^\/api\/v1\/users\/[^/]+\/roles$/,
         roles: ADMIN_ONLY,
     },
+    { method: 'POST', path: '/api/v1/tc-versions', roles: ADMIN_ONLY },
     { method: 'POST', path: '/api/v1/brands', roles: ADMIN_ONLY },
     {
         method: 'PATCH',

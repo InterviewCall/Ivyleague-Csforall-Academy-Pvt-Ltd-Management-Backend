@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 
 import { RbacModule, RolesGuard } from '@app/rbac';
-import { CommonModule } from '@app/common';
+import { CommonModule, MarkdownModule } from '@app/common';
 
 import { ModelModule } from '@app/model';
 import { AppController } from './app.controller.js';
@@ -10,6 +10,7 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UserModule } from './user/user.module.js';
 import { HashModule } from './hash/hash.module.js';
+import { TcVersionModule } from './tc-version/tc-version.module.js';
 import { BrandModule } from './brand/brand.module.js';
 import { UserStaffModule } from './user-staff/user-staff.module.js';
 
@@ -17,11 +18,13 @@ import { UserStaffModule } from './user-staff/user-staff.module.js';
     imports: [
         RbacModule.register(),
         CommonModule,
+        MarkdownModule,
         ModelModule,
         AuthModule,
         UserModule,
         HashModule,
         BrandModule,
+        TcVersionModule,
         UserStaffModule,
     ],
     controllers: [AppController],
