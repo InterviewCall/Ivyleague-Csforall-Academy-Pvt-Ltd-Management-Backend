@@ -16,6 +16,9 @@ export class AccessTokenRepository {
     ): Promise<AccessToken> {
         return tx.accessToken.create({ data });
     }
+    createToken(data: Prisma.AccessTokenCreateInput): Promise<AccessToken> {
+        return this.prisma.accessToken.create({ data });
+    }
 
     findByTokenHashAndPurpose(
         tokenHash: string,
