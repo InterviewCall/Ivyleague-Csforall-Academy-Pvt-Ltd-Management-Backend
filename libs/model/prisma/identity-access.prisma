@@ -120,7 +120,7 @@ model UserBrandAccess {
 model TcVersion {
     id              Int        @id @default(autoincrement())
     document        TcDocument
-    version         String     @db.VarChar(20)
+    version         Int
     /// null = applies to every brand; set = that brand's own terms.
     brandId         Int?       @map("brand_id")
     content         String     @db.Text
