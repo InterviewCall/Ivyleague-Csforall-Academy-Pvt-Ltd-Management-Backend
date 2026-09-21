@@ -3,6 +3,7 @@ import {
     Prisma,
     User,
     UserStatus,
+    UserType,
 } from '@app/model/generated/prisma/client.js';
 import { Injectable } from '@nestjs/common';
 
@@ -39,6 +40,37 @@ export class UserRepository {
         return tx.user.update({
             where: { id },
             data: { passwordHash, status: UserStatus.ACTIVE },
+        });
+    }
+
+    findLearners(
+        search?: string,
+        status?: UserStatus,
+    ) {
+        return this.prisma.user.findMany({
+            where: {
+                userType: UserType.LEARNER,
+
+                ...(status ? { status } : {}),
+
+                ...(search
+                    ? {
+                        OR: [
+                            { fullName: { contains: search } },
+                            { email: { contains: search } },
+                            { phone: { contains: search } },
+                        ],
+                    }
+                    : {}),
+            },
+
+            omit: {
+                passwordHash: true,
+            },
+
+            orderBy: {
+                createdAt: 'desc',
+            },
         });
     }
 }

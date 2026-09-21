@@ -32,7 +32,7 @@ import { UserRepository } from './user.repsitory.js';
 import { StaffAccount } from './types/staff-account.type.js';
 import { LearnerAccount } from './types/learner-account.type.js';
 import { IssuedAccessToken } from '../access-token/types/issues-access-token.type.js';
-
+import { GetLearnersDto } from './dto/get-learners.dto.js';
 @Injectable()
 export class UserService {
     constructor(
@@ -139,6 +139,13 @@ export class UserService {
             status: learner.status,
             created: true,
         };
+    }
+
+    async getLearners(payload: GetLearnersDto): Promise<User[]> {
+        return this.userRepository.findLearners(
+            payload.search,
+            payload.status,
+        );
     }
 
     private async resolveBrandsByCode(codes: string[]): Promise<Brand[]> {
