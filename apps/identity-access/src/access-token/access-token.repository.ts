@@ -28,6 +28,11 @@ export class AccessTokenRepository {
             where: { tokenHash, purpose },
         });
     }
+    findByTokenHash(tokenHash: string): Promise<AccessToken | null> {
+        return this.prisma.accessToken.findUnique({
+            where: { tokenHash },
+        });
+    }
 
     markUsed(id: number, tx: Prisma.TransactionClient): Promise<AccessToken> {
         return tx.accessToken.update({

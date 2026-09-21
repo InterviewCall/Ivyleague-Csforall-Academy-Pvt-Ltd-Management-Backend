@@ -37,7 +37,7 @@ export function registerJwtAuthHook(
 
             const pathname = request.url.split('?')[0];
 
-            if (isPublicPath(pathname)) {
+            if (isPublicPath(pathname,request.method)) {
                 return;
             }
 

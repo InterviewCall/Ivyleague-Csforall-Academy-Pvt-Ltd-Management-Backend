@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException,Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'crypto';
 
 import { AccessTokenRepository } from './access-token.repository.js';
@@ -40,6 +40,28 @@ export class AccessTokenService {
             purpose: payload.purpose,
             userId: payload.userId,
             expiresAt: issuedToken.expiresAt,
+        };
+    }
+    async validateToken(token: string) {
+        const tokenHash = this.hash(token);
+
+        const accessToken =
+            await this.accessTokenRepository.findByTokenHash(tokenHash);
+
+        if (
+            !accessToken ||
+            accessToken.usedAt !== null ||
+            accessToken.expiresAt.getTime() <= Date.now()
+        ) {
+            throw new BadRequestException(
+                'This token is invalid, expired, or already used',
+            );
+        }
+
+        return {
+            purpose: accessToken.purpose,
+            subject: accessToken.userId,
+            expiresAt: accessToken.expiresAt,
         };
     }
 
