@@ -27,6 +27,15 @@ export class RolesGuard implements CanActivate {
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        const permittedRoles = this.reflector.getAllAndOverride<
+            AccessRole[] | undefined
+        >(ROLES_KEY, [context.getHandler(), context.getClass()]);
+
+        // No @Roles on the route or its controller: this guard has no opinion.
+        if (!permittedRoles || permittedRoles.length === 0) {
+            return true;
+        }
+
         const request = context.switchToHttp().getRequest<{
             principal?: Principal;
         }>();
@@ -37,20 +46,7 @@ export class RolesGuard implements CanActivate {
             throw new UnauthorizedException('Authentication required');
         }
 
-        // Make the authenticated user available to @CurrentUser().
-        request.principal = principal;
-
-        const permittedRoles = this.reflector.getAllAndOverride<
-            AccessRole[] | undefined
-        >(ROLES_KEY, [context.getHandler(), context.getClass()]);
-
-        // No @Roles on the route or controller.
-        // Authentication is enough.
-        if (!permittedRoles || permittedRoles.length === 0) {
-            return true;
-        }
-
-        // ADMIN can access every role-protected route.
+        // ADMIN reaches every route without being listed.
         const permitted =
             principal.roles.includes(AccessRole.ADMIN) ||
             principal.roles.some((role) => permittedRoles.includes(role));
@@ -60,6 +56,9 @@ export class RolesGuard implements CanActivate {
                 'You do not have permission to perform this action',
             );
         }
+
+        // Made available to handlers via @CurrentUser().
+        request.principal = principal;
 
         return true;
     }
