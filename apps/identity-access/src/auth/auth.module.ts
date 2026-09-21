@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module.js';
 import { HashModule } from '../hash/hash.module.js';
 import { UserStaffModule } from '../user-staff/user-staff.module.js';
 import { AccessTokenModule } from '../access-token/access-token.module.js';
+import { AuthRepository } from './auth.repository.js';
 
 @Module({
     imports: [
@@ -25,6 +26,6 @@ import { AccessTokenModule } from '../access-token/access-token.module.js';
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService],
+    providers: [AuthService, AuthRepository],
 })
 export class AuthModule {}
