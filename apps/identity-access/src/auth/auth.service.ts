@@ -23,6 +23,7 @@ import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { UserRepository } from '../user/user.repsitory.js';
 import { ActivateAccountDto } from './dto/activate-account.dto.js';
 import { SignInDto } from './dto/sign-in.dto.js';
+import { AuthRepository } from './auth.repository.js';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,7 @@ export class AuthService {
         private readonly userStaffRepository: UserStaffRepository,
         private readonly accessTokenRepository: AccessTokenRepository,
         private readonly accessTokenService: AccessTokenService,
+        private readonly authRepository : AuthRepository,
     ) {}
 
     async signIn(payload: SignInDto): Promise<string> {
@@ -109,5 +111,40 @@ export class AuthService {
         });
 
         return { activated: true };
+    }
+
+    async resetPassword( token: string,payload: ActivateAccountDto,): Promise<{ reset: true }> {
+       
+        const tokenHash = this.accessTokenService.hash(token);
+
+        const resetToken =
+            await this.accessTokenRepository.findByTokenHashAndPurpose(
+                tokenHash,
+                TokenPurpose.PASSWORD_RESET,
+            );
+
+        if (
+            !resetToken ||
+            resetToken.usedAt !== null ||
+            resetToken.expiresAt.getTime() <= Date.now()
+        ) {
+            throw new BadRequestException(
+                'This password reset link is invalid or has expired',
+            );
+        }
+
+        const passwordHash = await this.hashService.hash(payload.password);
+
+        await this.prisma.$transaction(async (tx) => {
+            await this.accessTokenRepository.markUsed(resetToken.id, tx);
+
+            await this.authRepository.updatePassword(
+                resetToken.userId,
+                passwordHash,
+                tx,
+            );
+        });
+
+        return { reset: true };
     }
 }
