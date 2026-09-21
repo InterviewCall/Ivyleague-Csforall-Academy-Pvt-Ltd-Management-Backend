@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Get, Post } from '@nestjs/common';
 
 import { AccessRole, CurrentUser, Roles } from '@app/rbac';
 import type { Principal } from '@app/rbac';
@@ -25,6 +25,10 @@ import { UserService } from './user.service.js';
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
+@Get('me')
+getCurrentUser(@CurrentUser() actor: Principal) {
+    return this.userService.getCurrentUser(actor.userId);
+}
 
     @Roles(AccessRole.SALES)
     @Post('learners')

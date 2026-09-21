@@ -41,4 +41,8 @@ export class UserRepository {
             data: { passwordHash, status: UserStatus.ACTIVE },
         });
     }
+
+    findById(id: number): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { id } });
+}
 }
