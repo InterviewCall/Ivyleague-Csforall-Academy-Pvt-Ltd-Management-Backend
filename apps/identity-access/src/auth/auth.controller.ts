@@ -38,6 +38,18 @@ export class AuthController {
 
         return { message: 'Signed in' };
     }
+    
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    logoutHandler(
+        @Res({ passthrough: true }) res: FastifyReply,
+    ) {
+        res.clearCookie('accessToken', {
+            path: '/',
+        });
+
+        return { message: 'Signed out' };
+    }
 
     @Post('invite/:token/activate')
     @HttpCode(HttpStatus.OK)
