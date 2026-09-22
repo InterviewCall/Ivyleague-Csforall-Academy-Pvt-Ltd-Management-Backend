@@ -1,0 +1,29 @@
+model NotificationTemplate {
+    id          Int      @id @default(autoincrement())
+    brandId     Int?     @map("brand_id")
+    templateKey String   @map("template_key") @db.VarChar(100)
+    channel     String   @db.VarChar(50)
+    subject     String?  @db.VarChar(255)
+    body        String   @db.Text
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    logs NotificationLog[]
+    
+    @@index([brandId, templateKey, channel])
+    @@map("notification_templates")
+}
+model NotificationLog {
+    id              Int       @id @default(autoincrement())
+    templateId      Int       @map("template_id")
+    recipientUserId Int       @map("recipient_user_id")
+    channel         String    @db.VarChar(50)
+    status          String    @db.VarChar(50)
+    sentAt          DateTime? @map("sent_at")
+
+    template NotificationTemplate @relation(fields: [templateId],references: [id],onDelete: Restrict)
+
+    @@index([recipientUserId])
+    @@index([status])
+    @@map("notification_logs")
+}
