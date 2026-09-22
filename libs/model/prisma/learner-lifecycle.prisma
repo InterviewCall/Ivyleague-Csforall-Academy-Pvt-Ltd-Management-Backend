@@ -25,6 +25,8 @@ model LearnerLifecycle {
     updatedAt       DateTime               @updatedAt @map("updated_at")
 
     taAssessments TaAssessment[]
+    batchPlacements BatchPlacement[]
+    riskFlags RiskFlag[]
     
     @@map("learner_lifecycles")
 
@@ -47,4 +49,33 @@ model TaAssessment {
     learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
 
     @@map("ta_assessments")
+}
+model BatchPlacement {
+    id                    Int      @id @default(autoincrement())
+    learnerId             Int      @map("learner_id")
+    batchId               Int      @map("batch_id")
+    placementReason       String   @map("placement_reason") @db.Text
+    overrideJustification String?  @map("override_justification") @db.Text
+    placedByUserId        Int      @map("placed_by_user_id")
+    placedAt              DateTime @map("placed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId],references: [id],onDelete: Cascade)
+
+    @@index([learnerId])
+    @@index([batchId])
+    @@map("batch_placements")
+}
+
+model RiskFlag {
+    id               Int       @id @default(autoincrement())
+    learnerId        Int       @map("learner_id")
+    reason           String    @db.Text
+    flaggedAt        DateTime  @map("flagged_at")
+    resolvedAt       DateTime? @map("resolved_at")
+    resolvedByUserId Int?      @map("resolved_by_user_id")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId, resolvedAt])
+    @@map("risk_flags")
 }

@@ -10,9 +10,22 @@ export const getLearnersSchema = z.object({
         .int()
         .positive()
         .optional(),
+
+    batchId: z.coerce
+        .number()
+        .int()
+        .positive()
+        .optional(),
+
+    riskFlag: z
+        .enum(['true', 'false'])
+        .transform((value) => value === 'true')
+        .optional(),
 });
 
 export class GetLearnersDto implements z.infer<typeof getLearnersSchema> {
     status?: LearnerLifecycleStatus;
     brandId?: number;
+    batchId?: number;
+    riskFlag?: boolean;
 }
