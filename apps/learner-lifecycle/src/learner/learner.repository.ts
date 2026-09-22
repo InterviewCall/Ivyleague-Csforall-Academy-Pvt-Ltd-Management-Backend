@@ -7,7 +7,7 @@ import {
 } from '@app/model/generated/prisma/client.js';
 
 @Injectable()
-export class LearnerLifecycleRepository {
+export class LearnerRepository {
     constructor(private readonly prisma: ModelService) {}
 
     findAll(params: {

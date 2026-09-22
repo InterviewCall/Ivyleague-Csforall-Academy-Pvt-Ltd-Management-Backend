@@ -5,18 +5,18 @@ import {
     LearnerLifecycleStatus,
 } from '@app/model/generated/prisma/client.js';
 
-import { LearnerLifecycleRepository } from './learner-lifecycle.repository.js';
+import { LearnerRepository } from './learner.repository.js';
 
 @Injectable()
-export class LearnerLifecycleService {
+export class LearnerService {
     constructor(
-        private readonly learnerLifecycleRepository: LearnerLifecycleRepository,
+        private readonly learnerRepository: LearnerRepository,
     ) {}
 
     findAll(params: {
         status?: LearnerLifecycleStatus;
         brandId?: number;
     }): Promise<LearnerLifecycle[]> {
-        return this.learnerLifecycleRepository.findAll(params);
+        return this.learnerRepository.findAll(params);
     }
 }
