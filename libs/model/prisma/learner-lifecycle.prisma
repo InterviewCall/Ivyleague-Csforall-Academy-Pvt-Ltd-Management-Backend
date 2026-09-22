@@ -1,0 +1,28 @@
+enum LearnerLifecycleStatus {
+    PENDING_PAYMENT
+    ENROLLED
+    ONBOARDING
+    ASSESSMENT
+    ACTIVE_DSA
+    DSA_REVIEW
+    ACTIVE_SYSTEM_DESIGN
+    READY_FOR_PLACEMENT
+    PLACEMENT_ACTIVE
+    COMPLETED
+    PAUSED
+    OFFBOARDED
+    REFUNDED
+    LAPSED
+}
+
+model LearnerLifecycle {
+    id              Int                    @id @default(autoincrement())
+    userId          Int                    @map("user_id")
+    brandId         Int                    @map("brand_id")
+    currentStatus   LearnerLifecycleStatus @default(PENDING_PAYMENT) @map("current_status")
+    statusUpdatedAt DateTime               @map("status_updated_at")
+    createdAt       DateTime               @default(now()) @map("created_at")
+    updatedAt       DateTime               @updatedAt @map("updated_at")
+
+    @@map("learner_lifecycles")
+}
