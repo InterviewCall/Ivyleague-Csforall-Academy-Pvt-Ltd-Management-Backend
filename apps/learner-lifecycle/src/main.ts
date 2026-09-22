@@ -1,29 +1,17 @@
 import 'dotenv/config';
-import { NestFactory } from '@nestjs/core';
+
 import {
-    RequestMethod,
     StandardSchemaValidationPipe,
     VersioningType,
 } from '@nestjs/common';
-import {
-    NestFastifyApplication,
-    FastifyAdapter,
-} from '@nestjs/platform-fastify';
-import { fastifyCookie } from '@fastify/cookie';
+import { NestFactory } from '@nestjs/core';
 
 import { LearnerLifecycleModule } from './learner-lifecycle.module.js';
 
 async function bootstrap() {
-    const app = await NestFactory.create<NestFastifyApplication>(
-        LearnerLifecycleModule,
-        new FastifyAdapter(),
-    );
+    const app = await NestFactory.create(LearnerLifecycleModule);
 
-    await app.register(fastifyCookie);
-
-    app.setGlobalPrefix('/api', {
-        exclude: [{ path: 'health', method: RequestMethod.GET }],
-    });
+    app.setGlobalPrefix('api');
 
     app.enableVersioning({
         type: VersioningType.URI,
@@ -32,7 +20,9 @@ async function bootstrap() {
 
     app.useGlobalPipes(new StandardSchemaValidationPipe());
 
-    await app.listen(Number(process.env.LEARNER_LIFECYCLE_PORT));
+    await app.listen(
+        Number(process.env.LEARNER_LIFECYCLE_PORT ?? 3003),
+    );
 }
 
 await bootstrap();
