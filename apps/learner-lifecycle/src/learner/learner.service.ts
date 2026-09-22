@@ -16,6 +16,8 @@ export class LearnerService {
     findAll(params: {
         status?: LearnerLifecycleStatus;
         brandId?: number;
+        batchId?: number;
+        riskFlag?: boolean;
     }): Promise<LearnerLifecycle[]> {
         return this.learnerRepository.findAll(params);
     }
