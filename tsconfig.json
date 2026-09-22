@@ -19,7 +19,7 @@
     "strictPropertyInitialization": false,
     "types": [
       "vitest/globals",
-      "node"
+      "node",
     ],
     "paths": {
       "@app/common": [
@@ -48,8 +48,13 @@
       ]
     }
   },
-  "exclude": [
-    "node_modules",
-    "dist"
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/identity-access/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/learner-lifecycle/tsconfig.app.json"
+    }
   ]
 }

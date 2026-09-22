@@ -24,5 +24,27 @@ model LearnerLifecycle {
     createdAt       DateTime               @default(now()) @map("created_at")
     updatedAt       DateTime               @updatedAt @map("updated_at")
 
+    taAssessments TaAssessment[]
+    
     @@map("learner_lifecycles")
+
+
+}
+
+model TaAssessment {
+    id                   Int      @id @default(autoincrement())
+    learnerId            Int      @map("learner_id")
+    sessionNumber        Int      @map("session_number")
+    problemsGiven        Int      @map("problems_given")
+    solvedCount          Int      @map("solved_count")
+    timeTakenMinutes     Int      @map("time_taken_minutes")
+    recommendedLevel     String   @map("recommended_level") @db.VarChar(50)
+    learnerFacingSummary String   @map("learner_facing_summary") @db.Text
+    internalNote         String?  @map("internal_note") @db.Text
+    taUserId             Int      @map("ta_user_id")
+    createdAt            DateTime @default(now()) @map("created_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@map("ta_assessments")
 }
