@@ -1,7 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query,Param, ParseIntPipe, } from '@nestjs/common';
 
-import { AccessRole, Roles } from '@app/rbac';
+import { AccessRole, Roles, CurrentUser} from '@app/rbac';
 
+import type { Principal } from '@app/rbac';
 import {
     GetLearnersDto,
     getLearnersSchema,
@@ -29,5 +30,22 @@ export class LearnerController {
         query: GetLearnersDto,
     ) {
         return this.learnerService.findAll(query);
+    }
+
+    @Roles(
+    AccessRole.LEARNER,
+    AccessRole.SALES,
+    AccessRole.PSA,
+    AccessRole.ACADEMIC_HEAD,
+    AccessRole.FINANCE,
+    AccessRole.TA,
+    AccessRole.PLACEMENT_COORDINATOR,
+)
+    @Get(':id')
+    findOne(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() principal: Principal,
+    ) {
+        return this.learnerService.findById(id, principal);
     }
 }
