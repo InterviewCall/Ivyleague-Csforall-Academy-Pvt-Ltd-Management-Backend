@@ -18,6 +18,12 @@ import { GoogleChatExecutor } from './strategies/executors/google-chat.executor.
 @Module({
     imports: [
         ModelModule,
+        BullModule.forRoot({
+            connection: {
+                host: process.env.REDIS_HOST ?? 'localhost',
+                port: Number(process.env.REDIS_PORT ?? 6379),
+            },
+        }),
         BullModule.registerQueue({
             name: NOTIFICATION_QUEUE,
             defaultJobOptions: NOTIFICATION_QUEUE_OPTIONS,
