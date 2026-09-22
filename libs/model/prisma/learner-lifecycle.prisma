@@ -48,6 +48,7 @@ model TaAssessment {
 
     learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
 
+    @@unique([learnerId, sessionNumber])
     @@map("ta_assessments")
 }
 model BatchPlacement {
