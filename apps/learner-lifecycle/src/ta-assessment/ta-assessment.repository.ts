@@ -46,4 +46,32 @@ export class TaAssessmentRepository {
             data,
         });
     }
+
+    findLearnerWithAssessmentSummaries(
+        learnerId: number,
+    ): Promise<{
+        userId: number;
+        taAssessments: {
+            sessionNumber: number;
+            learnerFacingSummary: string;
+        }[];
+    } | null> {
+        return this.prisma.learnerLifecycle.findUnique({
+            where: {
+                id: learnerId,
+            },
+            select: {
+                userId: true,
+                taAssessments: {
+                    select: {
+                        sessionNumber: true,
+                        learnerFacingSummary: true,
+                    },
+                    orderBy: {
+                        sessionNumber: 'asc',
+                    },
+                },
+            },
+        });
+    }
 }

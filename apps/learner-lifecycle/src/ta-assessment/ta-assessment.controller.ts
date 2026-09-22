@@ -4,6 +4,7 @@ import {
     ParseIntPipe,
     Post,
     Body,
+    Get,
 } from '@nestjs/common';
 
 import { AccessRole, CurrentUser, Roles } from '@app/rbac';
@@ -32,6 +33,17 @@ export class TaAssessmentController {
         return this.taAssessmentService.createAssessment(
             learnerId,
             payload,
+            principal?.userId,
+        );
+    }
+    @Get(':id/ta-assessments/summary')
+    @Roles(AccessRole.LEARNER)
+    getAssessmentSummary(
+        @Param('id', ParseIntPipe) learnerId: number,
+        @CurrentUser() principal?: Principal,
+    ) {
+        return this.taAssessmentService.getAssessmentSummary(
+            learnerId,
             principal?.userId,
         );
     }

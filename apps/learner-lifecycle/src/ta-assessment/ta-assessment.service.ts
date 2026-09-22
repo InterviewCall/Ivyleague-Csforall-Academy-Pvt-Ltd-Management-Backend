@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     ConflictException,
+    ForbiddenException,
     Injectable,
     NotFoundException,
     UnauthorizedException,
@@ -80,5 +81,46 @@ export class TaAssessmentService {
             internalNote: payload.internalNote,
             taUserId: taUserIdNumber,
         });
+    }
+    async getAssessmentSummary(
+        learnerId: number,
+        currentUserId?: string,
+    ): Promise<{
+        assessments: {
+            sessionNumber: number;
+            learnerFacingSummary: string;
+        }[];
+    }> {
+        if (!currentUserId) {
+            throw new UnauthorizedException('Authenticated user not found');
+        }
+
+        const currentUserIdNumber = Number(currentUserId);
+
+        if (
+            !Number.isInteger(currentUserIdNumber) ||
+            currentUserIdNumber <= 0
+        ) {
+            throw new UnauthorizedException('Invalid authenticated user');
+        }
+
+        const learner =
+            await this.taAssessmentRepository.findLearnerWithAssessmentSummaries(
+                learnerId,
+            );
+
+        if (!learner) {
+            throw new NotFoundException('Learner not found');
+        }
+
+        if (learner.userId !== currentUserIdNumber) {
+            throw new ForbiddenException(
+                'You can only access your own assessment summary',
+            );
+        }
+
+        return {
+            assessments: learner.taAssessments,
+        };
     }
 }
