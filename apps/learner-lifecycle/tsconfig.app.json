@@ -1,11 +1,9 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "rootDir": "./src",
-    "outDir": "../../dist/apps/learner-lifecycle"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "../..",
+        "outDir": "../../dist/apps/learner-lifecycle"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }
