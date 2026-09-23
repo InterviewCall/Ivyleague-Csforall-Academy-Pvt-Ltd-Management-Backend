@@ -124,3 +124,18 @@ model ProgressSnapshot {
     @@index([learnerId, phase])
     @@map("progress_snapshots")
 }
+model Checkin {
+    id              Int       @id @default(autoincrement())
+    learnerId       Int       @map("learner_id")
+    scheduledDate   DateTime  @map("scheduled_date")
+    completedDate   DateTime? @map("completed_date")
+    statusUpdate    String    @map("status_update") @db.Text
+    queryRaised     Boolean   @default(false) @map("query_raised")
+    queryResolution String?   @map("query_resolution") @db.Text
+    psaUserId        Int       @map("psa_user_id")
+    createdAt       DateTime  @default(now()) @map("created_at")
+
+    @@index([learnerId])
+    @@index([scheduledDate])
+    @@map("checkins")
+}
