@@ -28,7 +28,8 @@ model LearnerLifecycle {
     batchPlacements BatchPlacement[]
     riskFlags RiskFlag[]
     dsaReviews DsaReview[]
-    
+    progressSnapshots ProgressSnapshot[]
+
     @@map("learner_lifecycles")
 
 
@@ -49,6 +50,7 @@ model TaAssessment {
 
     learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
 
+    @@unique([learnerId, sessionNumber])
     @@map("ta_assessments")
 }
 model BatchPlacement {
@@ -95,4 +97,19 @@ model DsaReview {
 
     @@index([learnerId])
     @@map("dsa_reviews")
+}
+
+model ProgressSnapshot {
+    id               Int      @id @default(autoincrement())
+    learnerId        Int      @map("learner_id")
+    phase            String   @db.VarChar(50)
+    attendancePct    Float    @map("attendance_pct")
+    assignmentPct    Float    @map("assignment_pct")
+    mockScorePct     Float    @map("mock_score_pct")
+    syncedAt         DateTime @default(now()) @map("synced_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId, phase])
+    @@map("progress_snapshots")
 }
