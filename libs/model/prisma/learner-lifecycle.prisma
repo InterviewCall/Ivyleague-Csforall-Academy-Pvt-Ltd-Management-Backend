@@ -1,0 +1,201 @@
+enum LearnerLifecycleStatus {
+    PENDING_PAYMENT
+    ENROLLED
+    ONBOARDING
+    ASSESSMENT
+    ACTIVE_DSA
+    DSA_REVIEW
+    ACTIVE_SYSTEM_DESIGN
+    READY_FOR_PLACEMENT
+    PLACEMENT_ACTIVE
+    COMPLETED
+    PAUSED
+    OFFBOARDED
+    REFUNDED
+    LAPSED
+}
+
+enum LearnerResponse {
+    PENDING
+    INTERESTED
+    NOT_INTERESTED
+}
+
+enum PlacementOutcome {
+    PENDING
+    SELECTED
+    REJECTED
+    WITHDRAWN
+    EXPIRED
+}
+
+model LearnerLifecycle {
+    id                    Int                    @id @default(autoincrement())
+    userId                Int                    @map("user_id")
+    brandId               Int                    @map("brand_id")
+    currentStatus         LearnerLifecycleStatus @default(PENDING_PAYMENT) @map("current_status")
+    statusUpdatedAt       DateTime               @map("status_updated_at")
+    statusUpdateReason    String?                @map("status_update_reason") @db.Text
+    statusUpdatedByUserId Int?                   @map("status_updated_by_user_id")
+    createdAt             DateTime               @default(now()) @map("created_at")
+    updatedAt             DateTime               @updatedAt @map("updated_at")
+
+    taAssessments          TaAssessment[]
+    batchPlacements        BatchPlacement[]
+    riskFlags              RiskFlag[]
+    dsaReviews             DsaReview[]
+    progressSnapshots      ProgressSnapshot[]
+    checkins               Checkin[]
+    pauses                 Pause[]
+    placementOpportunities PlacementOpportunity[]
+
+    @@map("learner_lifecycles")
+}
+
+model TaAssessment {
+    id                   Int      @id @default(autoincrement())
+    learnerId            Int      @map("learner_id")
+    sessionNumber        Int      @map("session_number")
+    problemsGiven        Int      @map("problems_given")
+    solvedCount          Int      @map("solved_count")
+    timeTakenMinutes     Int      @map("time_taken_minutes")
+    recommendedLevel     String   @map("recommended_level") @db.VarChar(50)
+    learnerFacingSummary String   @map("learner_facing_summary") @db.Text
+    internalNote         String?  @map("internal_note") @db.Text
+    taUserId             Int      @map("ta_user_id")
+    createdAt            DateTime @default(now()) @map("created_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@unique([learnerId, sessionNumber])
+    @@map("ta_assessments")
+}
+
+model BatchPlacement {
+    id                    Int      @id @default(autoincrement())
+    learnerId             Int      @map("learner_id")
+    batchId               Int      @map("batch_id")
+    placementReason       String   @map("placement_reason") @db.Text
+    overrideJustification String?  @map("override_justification") @db.Text
+    placedByUserId        Int      @map("placed_by_user_id")
+    placedAt              DateTime @map("placed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@index([batchId])
+    @@map("batch_placements")
+}
+
+model RiskFlag {
+    id               Int       @id @default(autoincrement())
+    learnerId        Int       @map("learner_id")
+    reason           String    @db.Text
+    flaggedAt        DateTime  @map("flagged_at")
+    resolvedAt       DateTime? @map("resolved_at")
+    resolvedByUserId Int?      @map("resolved_by_user_id")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    outreachAttempts OutreachAttempt[]
+    @@index([learnerId, resolvedAt])
+    @@map("risk_flags")
+}
+
+model DsaReview {
+    id               Int      @id @default(autoincrement())
+    learnerId        Int      @map("learner_id")
+    finalMarks       Int      @map("final_marks")
+    passed            Boolean
+    reason            String   @db.Text
+    reviewedByUserId Int      @map("reviewed_by_user_id")
+    reviewedAt       DateTime @map("reviewed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@map("dsa_reviews")
+}
+
+model ProgressSnapshot {
+    id            Int      @id @default(autoincrement())
+    learnerId     Int      @map("learner_id")
+    phase         String   @db.VarChar(50)
+    attendancePct Float    @map("attendance_pct")
+    assignmentPct Float    @map("assignment_pct")
+    mockScorePct  Float    @map("mock_score_pct")
+    syncedAt      DateTime @default(now()) @map("synced_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId, phase])
+    @@map("progress_snapshots")
+}
+
+model Checkin {
+    id              Int       @id @default(autoincrement())
+    learnerId       Int       @map("learner_id")
+    scheduledDate   DateTime  @map("scheduled_date")
+    completedDate   DateTime? @map("completed_date")
+    statusUpdate    String    @map("status_update") @db.Text
+    queryRaised     Boolean   @default(false) @map("query_raised")
+    queryResolution String?   @map("query_resolution") @db.Text
+    psaUserId        Int       @map("psa_user_id")
+    createdAt        DateTime  @default(now()) @map("created_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@index([scheduledDate])
+    @@map("checkins")
+}
+
+model Pause {
+    id                 Int       @id @default(autoincrement())
+    learnerId          Int       @map("learner_id")
+    reason             String    @db.Text
+    requestedAt        DateTime  @default(now()) @map("requested_at")
+    expectedReturnDate DateTime  @map("expected_return_date")
+    autoReviewAt       DateTime  @map("auto_review_at")
+    resumedAt          DateTime? @map("resumed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@map("pauses")
+}
+
+model OutreachAttempt {
+    id            Int      @id @default(autoincrement())
+    riskFlagId    Int      @map("risk_flag_id")
+    attemptNumber Int      @map("attempt_number")
+    channel       String   @db.VarChar(20)
+    attemptedAt   DateTime @map("attempted_at")
+    outcome       String   @db.Text
+    learnerReason String   @map("learner_reason") @db.Text
+
+    riskFlag RiskFlag @relation(fields: [riskFlagId], references: [id], onDelete: Cascade)
+
+    @@unique([riskFlagId, attemptNumber])
+    @@index([riskFlagId])
+    @@map("outreach_attempts")
+
+}
+model PlacementOpportunity {
+    id                Int               @id @default(autoincrement())
+    learnerId         Int               @map("learner_id")
+    company           String            @db.VarChar(255)
+    role              String            @db.VarChar(255)
+    packageOffered    String            @map("package_offered") @db.VarChar(100)
+    sharedAt          DateTime          @map("shared_at")
+    responseDeadline  DateTime          @map("response_deadline")
+    learnerResponse   LearnerResponse?  @map("learner_response")
+    outcome           PlacementOutcome?
+    coordinatorUserId Int               @map("coordinator_user_id")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@index([responseDeadline])
+    @@map("placement_opportunities")
+}

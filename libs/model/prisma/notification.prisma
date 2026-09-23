@@ -1,0 +1,50 @@
+enum NotificationChannel {
+    EMAIL
+    WHATSAPP   
+}
+
+enum NotificationStatus {
+    PENDING
+    SENT
+    FAILED
+}
+
+/// A brand's (or shared) copy for a given event + channel. Sending code looks
+/// up the template by key/channel/brand rather than hardcoding subject/body,
+/// so wording can change without a deploy.
+/// brandId is a reference into the brand-owning service, not a local FK.
+model NotificationTemplate {
+    id          Int                 @id @default(autoincrement())
+    /// null = shared across all brands; set = that brand's own template.
+    brandId     Int?                @map("brand_id")
+    templateKey String              @map("template_key") @db.VarChar(100)
+    channel     NotificationChannel
+    subject     String?             @db.VarChar(255)
+    body        String              @db.Text
+    createdAt   DateTime            @default(now()) @map("created_at")
+    updatedAt   DateTime            @updatedAt @map("updated_at")
+
+    logs NotificationLog[]
+
+    @@unique([brandId, templateKey, channel])
+    @@map("notification_templates")
+}
+
+/// One row per delivery attempt against a recipient. Kept even on FAILED so
+/// retries/audits can see what was sent, to whom, and when.
+/// recipientUserId is a reference into the user-owning service, not a local FK.
+model NotificationLog {
+    id              Int                 @id @default(autoincrement())
+    templateId      Int                 @map("template_id")
+    recipientUserId Int                 @map("recipient_user_id")
+    channel         NotificationChannel
+    status          NotificationStatus  @default(PENDING)
+    sentAt          DateTime?           @map("sent_at")
+    createdAt       DateTime            @default(now()) @map("created_at")
+
+    template NotificationTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+
+    @@index([recipientUserId, status])
+    @@index([templateId, status])
+    @@map("notification_logs")
+}

@@ -1,0 +1,34 @@
+model Ticket {
+  id              Int       @id @default(autoincrement())
+  learnerId       Int
+  category        String
+  description     String    @db.Text
+  status          String
+  ownerUserId     Int?
+  resolution      String?   @db.Text
+  learnerAccepted Boolean?
+  createdAt       DateTime  @default(now())
+  resolvedAt      DateTime?
+
+  @@index([learnerId])
+  @@index([status])
+  @@index([ownerUserId])
+  @@index([createdAt])
+}
+
+model EscalationCase {
+  id              Int       @id @default(autoincrement())
+  learnerId       Int
+  caseType        String
+  status          String
+  decision        String?   @db.Text
+  decidedByUserId Int?
+  decidedAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([learnerId])
+  @@index([caseType])
+  @@index([status])
+  @@index([decidedByUserId])
+  @@index([createdAt])
+}
