@@ -32,6 +32,7 @@ model LearnerLifecycle {
     dsaReviews        DsaReview[]
     progressSnapshots ProgressSnapshot[]
     checkins          Checkin[]
+    pauses            Pause[]
 
     @@map("learner_lifecycles")
 }
@@ -81,6 +82,7 @@ model RiskFlag {
 
     learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
 
+    outreachAttempts OutreachAttempt[]
     @@index([learnerId, resolvedAt])
     @@map("risk_flags")
 }
@@ -131,4 +133,35 @@ model Checkin {
     @@index([learnerId])
     @@index([scheduledDate])
     @@map("checkins")
+}
+
+model Pause {
+    id                 Int       @id @default(autoincrement())
+    learnerId          Int       @map("learner_id")
+    reason             String    @db.Text
+    requestedAt        DateTime  @default(now()) @map("requested_at")
+    expectedReturnDate DateTime  @map("expected_return_date")
+    autoReviewAt       DateTime  @map("auto_review_at")
+    resumedAt          DateTime? @map("resumed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@map("pauses")
+}
+
+model OutreachAttempt {
+    id            Int      @id @default(autoincrement())
+    riskFlagId    Int      @map("risk_flag_id")
+    attemptNumber Int      @map("attempt_number")
+    channel       String   @db.VarChar(20)
+    attemptedAt   DateTime @map("attempted_at")
+    outcome       String   @db.Text
+    learnerReason String   @map("learner_reason") @db.Text
+
+    riskFlag RiskFlag @relation(fields: [riskFlagId], references: [id], onDelete: Cascade)
+
+    @@unique([riskFlagId, attemptNumber])
+    @@index([riskFlagId])
+    @@map("outreach_attempts")
 }

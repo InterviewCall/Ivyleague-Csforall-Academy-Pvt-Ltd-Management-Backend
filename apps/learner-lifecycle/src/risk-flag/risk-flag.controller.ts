@@ -17,6 +17,7 @@ import {
 } from './dto/create-risk-flag.dto.js';
 
 import { RiskFlagService } from './risk-flag.service.js';
+import { CreateOutreachAttemptDto, createOutreachAttemptSchema } from './dto/create-outreach-attempt.dto.js';
 
 @Controller('learners')
 export class RiskFlagController {
@@ -33,6 +34,20 @@ export class RiskFlagController {
     ) {
         return this.riskFlagService.createRiskFlag(
             learnerId,
+            payload,
+        );
+    }
+    @Roles(AccessRole.PSA)
+    @Post(':id/risk-flags/:flagId/outreach-attempts')
+    createOutreachAttempt(
+        @Param('id', ParseIntPipe) learnerId: number,
+        @Param('flagId', ParseIntPipe) riskFlagId: number,
+        @Body({ schema: createOutreachAttemptSchema })
+        payload: CreateOutreachAttemptDto,
+    ) {
+        return this.riskFlagService.createOutreachAttempt(
+            learnerId,
+            riskFlagId,
             payload,
         );
     }
