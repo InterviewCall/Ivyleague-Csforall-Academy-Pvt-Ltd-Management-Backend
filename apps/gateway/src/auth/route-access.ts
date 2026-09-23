@@ -55,6 +55,11 @@ export const accessRules: AccessRule[] = [
             'PLACEMENT_COORDINATOR',
         ],
     },
+    {
+        method: 'POST',
+        path: /^\/api\/v1\/learners\/[^/]+\/progress$/,
+        roles: ['PSA'],
+    },
 ];
 
 export function findAccessRule(
