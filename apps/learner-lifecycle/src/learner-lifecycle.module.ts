@@ -5,12 +5,13 @@ import { ModelModule } from '@app/model';
 import { RbacModule, RolesGuard } from '@app/rbac';
 
 import { LearnerModule } from './learner/learner.module.js';
-
+import { RiskFlagModule } from './risk-flag/risk-flag.module.js';
 @Module({
     imports: [
         RbacModule.register(),
         ModelModule,
         LearnerModule,
+        RiskFlagModule,
     ],
     providers: [
         {
@@ -20,3 +21,4 @@ import { LearnerModule } from './learner/learner.module.js';
     ],
 })
 export class LearnerLifecycleModule {}
+    
