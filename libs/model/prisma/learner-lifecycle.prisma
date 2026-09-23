@@ -27,6 +27,7 @@ model LearnerLifecycle {
     taAssessments TaAssessment[]
     batchPlacements BatchPlacement[]
     riskFlags RiskFlag[]
+    dsaReviews DsaReview[]
     
     @@map("learner_lifecycles")
 
@@ -78,4 +79,20 @@ model RiskFlag {
 
     @@index([learnerId, resolvedAt])
     @@map("risk_flags")
+}
+
+
+model DsaReview {
+    id               Int      @id @default(autoincrement())
+    learnerId        Int      @map("learner_id")
+    finalMarks       Int      @map("final_marks")
+    passed            Boolean
+    reason           String   @db.Text
+    reviewedByUserId Int      @map("reviewed_by_user_id")
+    reviewedAt       DateTime @map("reviewed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@map("dsa_reviews")
 }
