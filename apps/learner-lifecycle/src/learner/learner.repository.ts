@@ -55,5 +55,27 @@ export class LearnerRepository {
         });
     }
 
+        createCheckin(data: {
+        learnerId: number;
+        scheduledDate: Date;
+        completedDate?: Date;
+        statusUpdate: string;
+        queryRaised?: boolean;
+        queryResolution?: string;
+        psaUserId: number;
+    }) {
+        return this.prisma.checkin.create({
+            data: {
+                learnerId: data.learnerId,
+                scheduledDate: data.scheduledDate,
+                completedDate: data.completedDate,
+                statusUpdate: data.statusUpdate,
+                queryRaised: data.queryRaised ?? false,
+                queryResolution: data.queryResolution,
+                psaUserId: data.psaUserId,
+            },
+        });
+    }
+
     
 }

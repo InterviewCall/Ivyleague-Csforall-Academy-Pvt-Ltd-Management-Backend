@@ -1,6 +1,6 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query , Body, Param, ParseIntPipe, Post,UnauthorizedException} from '@nestjs/common';
 
-import { AccessRole, Roles } from '@app/rbac';
+import { AccessRole, Roles, CurrentUser } from '@app/rbac';
 
 import {
     GetLearnersDto,
@@ -8,6 +8,11 @@ import {
 } from './dto/get-learners.dto.js';
 
 import { LearnerService } from './learner.service.js';
+import type { Principal } from '@app/rbac';
+import {
+    CreateCheckinDto,
+    createCheckinSchema,
+} from './dto/create-checkin.dto.js';
 
 @Controller('learners')
 export class LearnerController {
@@ -29,5 +34,24 @@ export class LearnerController {
         query: GetLearnersDto,
     ) {
         return this.learnerService.findAll(query);
+    }
+
+        @Roles(AccessRole.PSA)
+    @Post(':id/checkins')
+    createCheckin(
+        @Param('id', ParseIntPipe) id: number,
+        @Body({ schema: createCheckinSchema })
+        payload: CreateCheckinDto,
+        @CurrentUser() actor?: Principal,
+    ) {
+        if (!actor) {
+            throw new UnauthorizedException('Authentication required');
+        }
+
+        return this.learnerService.createCheckin(
+            id,
+            payload,
+            Number(actor.userId),
+        );
     }
 }
