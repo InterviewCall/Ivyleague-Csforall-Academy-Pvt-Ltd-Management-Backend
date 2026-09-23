@@ -32,6 +32,7 @@ model LearnerLifecycle {
     dsaReviews        DsaReview[]
     progressSnapshots ProgressSnapshot[]
     checkins          Checkin[]
+    pauses            Pause[]
 
     @@map("learner_lifecycles")
 }
@@ -131,4 +132,19 @@ model Checkin {
     @@index([learnerId])
     @@index([scheduledDate])
     @@map("checkins")
+}
+
+model Pause {
+    id                 Int       @id @default(autoincrement())
+    learnerId          Int       @map("learner_id")
+    reason             String    @db.Text
+    requestedAt        DateTime  @default(now()) @map("requested_at")
+    expectedReturnDate DateTime  @map("expected_return_date")
+    autoReviewAt       DateTime  @map("auto_review_at")
+    resumedAt          DateTime? @map("resumed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@map("pauses")
 }
