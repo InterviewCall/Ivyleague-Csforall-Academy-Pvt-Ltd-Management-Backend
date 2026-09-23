@@ -111,3 +111,16 @@ model Offboarding {
     @@index([learnerId])
     @@map("offboardings")
 }
+
+model ProgressSnapshot {
+    id            Int      @id @default(autoincrement())
+    learnerId     Int      @map("learner_id")
+    phase         String   @db.VarChar(50)
+    attendancePct Float    @map("attendance_pct")
+    assignmentPct Float    @map("assignment_pct")
+    mockScorePct  Float    @map("mock_score_pct")
+    syncedAt      DateTime @default(now()) @map("synced_at")
+
+    @@index([learnerId, phase])
+    @@map("progress_snapshots")
+}
