@@ -12,3 +12,16 @@ model Ticket {
 
     @@map("tickets")
 }
+
+model EscalationCase {
+    id              Int       @id @default(autoincrement())
+    learnerId       Int       @map("learner_id")
+    caseType        String    @map("case_type") @db.VarChar(50)
+    status          String    @db.VarChar(50)
+    decision        String?   @db.Text
+    decidedByUserId Int?      @map("decided_by_user_id")
+    decidedAt       DateTime? @map("decided_at")
+    createdAt       DateTime  @default(now()) @map("created_at")
+
+    @@map("escalation_cases")
+}
