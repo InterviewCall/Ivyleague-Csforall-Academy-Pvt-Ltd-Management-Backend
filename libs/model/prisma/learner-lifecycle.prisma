@@ -15,24 +15,39 @@ enum LearnerLifecycleStatus {
     LAPSED
 }
 
-model LearnerLifecycle {
-    id              Int                    @id @default(autoincrement())
-    userId          Int                    @map("user_id")
-    brandId         Int                    @map("brand_id")
-    currentStatus   LearnerLifecycleStatus @default(PENDING_PAYMENT) @map("current_status")
-    statusUpdatedAt DateTime               @map("status_updated_at")
-    statusUpdateReason String?             @map("status_update_reason") @db.Text
-    statusUpdatedByUserId Int?             @map("status_updated_by_user_id")
-    createdAt       DateTime               @default(now()) @map("created_at")
-    updatedAt       DateTime               @updatedAt @map("updated_at")
+enum LearnerResponse {
+    PENDING
+    INTERESTED
+    NOT_INTERESTED
+}
 
-    taAssessments     TaAssessment[]
-    batchPlacements   BatchPlacement[]
-    riskFlags         RiskFlag[]
-    dsaReviews        DsaReview[]
-    progressSnapshots ProgressSnapshot[]
-    checkins          Checkin[]
-    pauses            Pause[]
+enum PlacementOutcome {
+    PENDING
+    SELECTED
+    REJECTED
+    WITHDRAWN
+    EXPIRED
+}
+
+model LearnerLifecycle {
+    id                    Int                    @id @default(autoincrement())
+    userId                Int                    @map("user_id")
+    brandId               Int                    @map("brand_id")
+    currentStatus         LearnerLifecycleStatus @default(PENDING_PAYMENT) @map("current_status")
+    statusUpdatedAt       DateTime               @map("status_updated_at")
+    statusUpdateReason    String?                @map("status_update_reason") @db.Text
+    statusUpdatedByUserId Int?                   @map("status_updated_by_user_id")
+    createdAt             DateTime               @default(now()) @map("created_at")
+    updatedAt             DateTime               @updatedAt @map("updated_at")
+
+    taAssessments          TaAssessment[]
+    batchPlacements        BatchPlacement[]
+    riskFlags              RiskFlag[]
+    dsaReviews             DsaReview[]
+    progressSnapshots      ProgressSnapshot[]
+    checkins               Checkin[]
+    pauses                 Pause[]
+    placementOpportunities PlacementOpportunity[]
 
     @@map("learner_lifecycles")
 }
@@ -91,8 +106,8 @@ model DsaReview {
     id               Int      @id @default(autoincrement())
     learnerId        Int      @map("learner_id")
     finalMarks       Int      @map("final_marks")
-    passed           Boolean
-    reason           String   @db.Text
+    passed            Boolean
+    reason            String   @db.Text
     reviewedByUserId Int      @map("reviewed_by_user_id")
     reviewedAt       DateTime @map("reviewed_at")
 
@@ -125,8 +140,8 @@ model Checkin {
     statusUpdate    String    @map("status_update") @db.Text
     queryRaised     Boolean   @default(false) @map("query_raised")
     queryResolution String?   @map("query_resolution") @db.Text
-    psaUserId       Int       @map("psa_user_id")
-    createdAt       DateTime  @default(now()) @map("created_at")
+    psaUserId        Int       @map("psa_user_id")
+    createdAt        DateTime  @default(now()) @map("created_at")
 
     learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
 
@@ -164,4 +179,23 @@ model OutreachAttempt {
     @@unique([riskFlagId, attemptNumber])
     @@index([riskFlagId])
     @@map("outreach_attempts")
+
+}
+model PlacementOpportunity {
+    id                Int               @id @default(autoincrement())
+    learnerId         Int               @map("learner_id")
+    company           String            @db.VarChar(255)
+    role              String            @db.VarChar(255)
+    packageOffered    String            @map("package_offered") @db.VarChar(100)
+    sharedAt          DateTime          @map("shared_at")
+    responseDeadline  DateTime          @map("response_deadline")
+    learnerResponse   LearnerResponse?  @map("learner_response")
+    outcome           PlacementOutcome?
+    coordinatorUserId Int               @map("coordinator_user_id")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@index([responseDeadline])
+    @@map("placement_opportunities")
 }
