@@ -86,7 +86,7 @@ model DsaReview {
     id               Int      @id @default(autoincrement())
     learnerId        Int      @map("learner_id")
     finalMarks       Int      @map("final_marks")
-    passed            Boolean
+    passed           Boolean
     reason           String   @db.Text
     reviewedByUserId Int      @map("reviewed_by_user_id")
     reviewedAt       DateTime @map("reviewed_at")
