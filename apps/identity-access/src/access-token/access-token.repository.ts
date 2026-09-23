@@ -17,6 +17,26 @@ export class AccessTokenRepository {
         return tx.accessToken.create({ data });
     }
 
+    createToken(
+        userId: number,
+        tokenHash: string,
+        purpose: TokenPurpose,
+        expiresAt: Date,
+    ): Promise<AccessToken> {
+        return this.prisma.accessToken.create({
+            data: {
+                tokenHash,
+                purpose,
+                expiresAt,
+                user: {
+                    connect: {
+                        id: userId,
+                    },
+                },
+            },
+        });
+    }
+
     findByTokenHashAndPurpose(
         tokenHash: string,
         purpose: TokenPurpose,
