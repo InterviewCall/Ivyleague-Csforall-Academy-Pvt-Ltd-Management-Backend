@@ -8,5 +8,20 @@ model NotificationTemplate {
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
 
+     notificationLogs NotificationLog[]
+
     @@map("notification_templates")
+}
+
+model NotificationLog {
+    id              Int      @id @default(autoincrement())
+    templateId      Int      @map("template_id")
+    recipientUserId Int      @map("recipient_user_id")
+    channel         String
+    status          String
+    sentAt          DateTime @map("sent_at")
+
+    template NotificationTemplate @relation(fields: [templateId], references: [id])
+
+    @@map("notification_logs")
 }
