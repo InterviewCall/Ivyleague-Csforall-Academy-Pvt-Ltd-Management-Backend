@@ -4,6 +4,7 @@ import { ModelService } from '@app/model';
 import {
     LearnerLifecycle,
     LearnerLifecycleStatus,
+    Prisma,
 } from '@app/model/generated/prisma/client.js';
 
 @Injectable()
@@ -52,6 +53,27 @@ export class LearnerRepository {
             orderBy: {
                 createdAt: 'desc',
             },
+        });
+    }
+    
+
+    findAtRisk() {
+        return this.prisma.learnerLifecycle.findMany({
+            where: {
+                riskFlags: { some: { resolvedAt: null } },
+            },
+            select: {
+                id: true,
+                userId: true,
+                brandId: true,
+                currentStatus: true,
+                riskFlags: {
+                    where: { resolvedAt: null },
+                    select: { id: true, reason: true, flaggedAt: true },
+                    orderBy: { flaggedAt: 'desc' },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
         });
     }
 

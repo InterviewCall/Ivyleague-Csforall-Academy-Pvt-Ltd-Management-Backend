@@ -30,4 +30,13 @@ export class LearnerController {
     ) {
         return this.learnerService.findAll(query);
     }
+
+    @Roles(
+        AccessRole.PSA,
+        AccessRole.ACADEMIC_HEAD,
+    )
+    @Get('at-risk')
+    findAtRisk() {
+        return this.learnerService.findAtRisk();
+    }
 }

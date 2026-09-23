@@ -21,4 +21,8 @@ export class LearnerService {
     }): Promise<LearnerLifecycle[]> {
         return this.learnerRepository.findAll(params);
     }
+
+    async findAtRisk() {
+        return this.learnerRepository.findAtRisk();
+    }
 }
