@@ -1,0 +1,14 @@
+model Ticket {
+    id              Int       @id @default(autoincrement())
+    learnerId       Int       @map("learner_id")
+    category        String    @db.VarChar(100)
+    description     String    @db.Text
+    status          String    @db.VarChar(50)
+    ownerUserId     Int?      @map("owner_user_id")
+    resolution      String?   @db.Text
+    learnerAccepted Boolean?  @map("learner_accepted")
+    createdAt       DateTime  @default(now()) @map("created_at")
+    resolvedAt      DateTime? @map("resolved_at")
+
+    @@map("tickets")
+}
