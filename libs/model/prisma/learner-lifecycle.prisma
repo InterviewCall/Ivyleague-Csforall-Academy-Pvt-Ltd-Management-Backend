@@ -1,0 +1,113 @@
+enum LearnerLifecycleStatus {
+    PENDING_PAYMENT
+    ENROLLED
+    ONBOARDING
+    ASSESSMENT
+    ACTIVE_DSA
+    DSA_REVIEW
+    ACTIVE_SYSTEM_DESIGN
+    READY_FOR_PLACEMENT
+    PLACEMENT_ACTIVE
+    COMPLETED
+    PAUSED
+    OFFBOARDED
+    REFUNDED
+    LAPSED
+}
+
+model LearnerLifecycle {
+    id                    Int                    @id @default(autoincrement())
+    userId                Int                    @map("user_id")
+    brandId               Int                    @map("brand_id")
+    currentStatus         LearnerLifecycleStatus @default(PENDING_PAYMENT) @map("current_status")
+    statusUpdatedAt       DateTime               @map("status_updated_at")
+    statusUpdateReason    String?                @map("status_update_reason") @db.Text
+    statusUpdatedByUserId Int?                   @map("status_updated_by_user_id")
+    createdAt             DateTime               @default(now()) @map("created_at")
+    updatedAt             DateTime               @updatedAt @map("updated_at")
+
+    taAssessments TaAssessment[]
+    batchPlacements BatchPlacement[]
+    riskFlags RiskFlag[]
+    dsaReviews DsaReview[]
+    offboardings Offboarding[]
+
+    @@map("learner_lifecycles")
+}
+
+model TaAssessment {
+    id                   Int      @id @default(autoincrement())
+    learnerId            Int      @map("learner_id")
+    sessionNumber        Int      @map("session_number")
+    problemsGiven        Int      @map("problems_given")
+    solvedCount          Int      @map("solved_count")
+    timeTakenMinutes     Int      @map("time_taken_minutes")
+    recommendedLevel     String   @map("recommended_level") @db.VarChar(50)
+    learnerFacingSummary String   @map("learner_facing_summary") @db.Text
+    internalNote         String?  @map("internal_note") @db.Text
+    taUserId             Int      @map("ta_user_id")
+    createdAt            DateTime @default(now()) @map("created_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@unique([learnerId, sessionNumber])
+    @@map("ta_assessments")
+}
+
+model BatchPlacement {
+    id                    Int      @id @default(autoincrement())
+    learnerId             Int      @map("learner_id")
+    batchId               Int      @map("batch_id")
+    placementReason       String   @map("placement_reason") @db.Text
+    overrideJustification String?  @map("override_justification") @db.Text
+    placedByUserId        Int      @map("placed_by_user_id")
+    placedAt              DateTime @map("placed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@index([batchId])
+    @@map("batch_placements")
+}
+
+model RiskFlag {
+    id               Int       @id @default(autoincrement())
+    learnerId        Int       @map("learner_id")
+    reason           String    @db.Text
+    flaggedAt        DateTime  @map("flagged_at")
+    resolvedAt       DateTime? @map("resolved_at")
+    resolvedByUserId Int?      @map("resolved_by_user_id")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId, resolvedAt])
+    @@map("risk_flags")
+}
+
+model DsaReview {
+    id               Int      @id @default(autoincrement())
+    learnerId        Int      @map("learner_id")
+    finalMarks       Int      @map("final_marks")
+    passed           Boolean
+    reason           String   @db.Text
+    reviewedByUserId Int      @map("reviewed_by_user_id")
+    reviewedAt       DateTime @map("reviewed_at")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@map("dsa_reviews")
+}
+
+model Offboarding {
+    id                Int      @id @default(autoincrement())
+    learnerId         Int      @map("learner_id")
+    reasonCode        String   @map("reason_code")
+    offboardedAt      DateTime @map("offboarded_at")
+    approvedByUserId  Int      @map("approved_by_user_id")
+
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+    @@index([learnerId])
+    @@map("offboardings")
+}
