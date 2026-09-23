@@ -1,11 +1,16 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body,Controller,Get, Param,ParseIntPipe,Patch,Query,} from '@nestjs/common';
 
-import { AccessRole, Roles } from '@app/rbac';
+import { AccessRole, CurrentUser, Roles } from '@app/rbac';
 
 import {
     GetLearnersDto,
     getLearnersSchema,
 } from './dto/get-learners.dto.js';
+
+import {
+    UpdateLearnerStatusDto,
+    updateLearnerStatusSchema,
+} from './dto/update-learner-status.dto.js';
 
 import { LearnerService } from './learner.service.js';
 
@@ -29,5 +34,23 @@ export class LearnerController {
         query: GetLearnersDto,
     ) {
         return this.learnerService.findAll(query);
+    }
+
+    @Roles(AccessRole.ACADEMIC_HEAD)
+    @Patch(':id/status')
+    updateStatus(
+        @Param('id', ParseIntPipe) id: number,
+        @Body({ schema: updateLearnerStatusSchema })
+        body: UpdateLearnerStatusDto,
+        @CurrentUser() currentUser: {
+            userId: number;
+        },
+    ) {
+        return this.learnerService.updateStatus(
+            id,
+            body.status,
+            body.reason,
+            Number(currentUser.userId),
+        );
     }
 }

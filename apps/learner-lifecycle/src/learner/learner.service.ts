@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 
 import {
     LearnerLifecycle,
@@ -21,4 +21,29 @@ export class LearnerService {
     }): Promise<LearnerLifecycle[]> {
         return this.learnerRepository.findAll(params);
     }
+async updateStatus(
+    learnerId: number,
+    status: LearnerLifecycleStatus,
+    reason: string,
+    userId: number,
+): Promise<LearnerLifecycle> {
+    const learner = await this.learnerRepository.findById(learnerId);
+
+    if (!learner) {
+        throw new NotFoundException('Learner not found');
+    }
+
+    if (learner.currentStatus === status) {
+        throw new BadRequestException(
+            'Learner is already in this status',
+        );
+    }
+
+    return this.learnerRepository.updateStatus(
+        learnerId,
+        status,
+        reason.trim(),
+        userId,
+    );
+}
 }
