@@ -21,6 +21,8 @@ model LearnerLifecycle {
     brandId         Int                    @map("brand_id")
     currentStatus   LearnerLifecycleStatus @default(PENDING_PAYMENT) @map("current_status")
     statusUpdatedAt DateTime               @map("status_updated_at")
+    statusUpdateReason String?             @map("status_update_reason") @db.Text
+    statusUpdatedByUserId Int?             @map("status_updated_by_user_id")
     createdAt       DateTime               @default(now()) @map("created_at")
     updatedAt       DateTime               @updatedAt @map("updated_at")
 
