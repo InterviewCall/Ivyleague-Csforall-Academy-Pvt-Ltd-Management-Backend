@@ -150,3 +150,16 @@ model Pause {
     @@index([learnerId])
     @@map("pauses")
 }
+model OutreachAttempt {
+    id            Int      @id @default(autoincrement())
+    riskFlagId    Int      @map("risk_flag_id")
+    attemptNumber Int      @map("attempt_number")
+    channel       String   @db.VarChar(20)
+    attemptedAt   DateTime @map("attempted_at")
+    outcome       String   @db.Text
+    learnerReason String   @map("learner_reason") @db.Text
+
+    @@unique([riskFlagId, attemptNumber])
+    @@index([riskFlagId])
+    @@map("outreach_attempts")
+}
