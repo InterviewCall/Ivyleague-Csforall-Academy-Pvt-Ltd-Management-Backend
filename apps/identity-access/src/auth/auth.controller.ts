@@ -15,6 +15,10 @@ import {
     activateAccountSchema,
 } from './dto/activate-account.dto.js';
 import { SignInDto, signInSchema } from './dto/sign-in.dto.js';
+import {
+    PasswordResetRequestDto,
+    passwordResetRequestSchema,
+} from './dto/password-reset-request.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -46,5 +50,14 @@ export class AuthController {
         @Body({ schema: activateAccountSchema }) payload: ActivateAccountDto,
     ) {
         return this.authService.activateAccount(token, payload);
+    }
+
+    @Post('password-reset/request')
+    @HttpCode(HttpStatus.OK)
+    requestPasswordReset(
+        @Body({ schema: passwordResetRequestSchema })
+        payload: PasswordResetRequestDto,
+    ) {
+        return this.authService.requestPasswordReset(payload);
     }
 }

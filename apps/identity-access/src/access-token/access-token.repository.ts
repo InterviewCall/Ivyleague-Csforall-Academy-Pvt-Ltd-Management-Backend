@@ -32,4 +32,15 @@ export class AccessTokenRepository {
             data: { usedAt: new Date() },
         });
     }
+
+    invalidateByPurpose(
+        userId: number,
+        purpose: TokenPurpose,
+        tx: Prisma.TransactionClient,
+    ) {
+        return tx.accessToken.updateMany({
+            where: { userId, purpose, usedAt: null },
+            data: { usedAt: new Date() },
+        });
+    }
 }
