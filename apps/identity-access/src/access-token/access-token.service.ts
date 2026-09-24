@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'crypto';
-
+import { ModelService } from '@app/model';
 import { IssuedAccessToken } from './types/issues-access-token.type.js';
 import { DEFAULT_TTL_HOURS } from './constants/index.js';
+import { AccessTokenRepository } from './access-token.repository.js';
+import { CreateAccessTokenDto } from './dto/create-access-token.dto.js';
 
 @Injectable()
 export class AccessTokenService {
+    constructor(
+        private readonly modelService: ModelService,
+        private readonly accessTokenRepository: AccessTokenRepository,
+    ) {}
+
     hash(token: string): string {
         return createHash('sha256').update(token).digest('hex');
     }
@@ -21,6 +28,62 @@ export class AccessTokenService {
             expiresAt: new Date(Date.now() + ttlHours * 60 * 60 * 1000),
         };
     }
+
+    async createAccessToken(payload: CreateAccessTokenDto) {
+        const issuedToken = this.issue();
+
+        const accessToken = await this.modelService.$transaction((tx) =>
+            this.accessTokenRepository.create(
+                {
+                    tokenHash: issuedToken.tokenHash,
+                    purpose: payload.purpose,
+                    expiresAt: issuedToken.expiresAt,
+                    userId: payload.userId,
+                },
+                tx,
+            )
+        );
+
+        return {
+            token: issuedToken.token,
+            purpose: accessToken.purpose,
+            userId: payload.userId,
+            expiresAt: accessToken.expiresAt,
+        };
+    }
+
+    async validateAccessToken(token: string) {
+        const tokenHash = this.hash(token);
+
+        const accessToken =
+            await this.accessTokenRepository.findByTokenHash(tokenHash);
+
+        if (!accessToken) {
+            return {
+                valid: false,
+            };
+        }
+
+        if (accessToken.expiresAt <= new Date()) {
+            return {
+                valid: false,
+            };
+        }
+
+        if (accessToken.usedAt) {
+            return {
+                valid: false,
+            };
+        }
+    
+        return {
+            valid: true,
+            userId: accessToken.userId,
+            purpose: accessToken.purpose,
+            expiresAt: accessToken.expiresAt,
+        };
+    }
+
 
     buildActivationUrl(token: string): string {
         const base =
