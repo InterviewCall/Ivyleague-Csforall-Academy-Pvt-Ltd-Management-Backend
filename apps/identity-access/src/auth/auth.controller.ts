@@ -47,4 +47,14 @@ export class AuthController {
     ) {
         return this.authService.activateAccount(token, payload);
     }
+
+    @Post('password-reset/:token')
+    @HttpCode(HttpStatus.OK)
+    resetPassword(
+        @Param('token') token: string,
+        @Body({ schema: activateAccountSchema })
+        payload: ActivateAccountDto,
+    ) {
+        return this.authService.resetPassword(token, payload);
+    }
 }
