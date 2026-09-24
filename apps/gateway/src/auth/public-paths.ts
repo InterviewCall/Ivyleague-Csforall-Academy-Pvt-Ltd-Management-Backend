@@ -12,6 +12,7 @@ export const publicPaths: string[] = [
     // Read-only, and reached before the learner has a session.
     '/api/v1/tc-versions/current',
     '/health',
+    '/api/v1/auth/logout',
 ];
 
 export function isPublicPath(pathname: string): boolean {
