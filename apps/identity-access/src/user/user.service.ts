@@ -32,6 +32,7 @@ import { UserRepository } from './user.repsitory.js';
 import { StaffAccount } from './types/staff-account.type.js';
 import { LearnerAccount } from './types/learner-account.type.js';
 import { IssuedAccessToken } from '../access-token/types/issues-access-token.type.js';
+import { AccessRole } from '@app/rbac';
 
 @Injectable()
 export class UserService {
@@ -313,4 +314,49 @@ export class UserService {
             throw error;
         }
     }
+
+async getCurrentUser(userId: string): Promise<{
+    publicId: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    userType: UserType;
+    status: UserStatus;
+    roles: string[];
+    brands: string[];
+}> {
+    const id: number = Number(userId);
+
+    if (!Number.isInteger(id) || id <= 0) {
+        throw new NotFoundException('User not found');
+    }
+
+    const user: User | null = await this.userRepository.findById(id);
+
+    if (!user) {
+        throw new NotFoundException('User not found');
+    }
+
+    const staffRoles = await this.userStaffRepository.findRolesByUserId(
+        user.id,
+    );
+
+    const roles: string[] =
+        user.userType === UserType.ADMIN
+            ? [AccessRole.ADMIN, ...staffRoles]
+            : staffRoles;
+
+    return {
+        publicId: user.publicId,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        userType: user.userType,
+        status: user.status,
+        roles,
+        brands: await this.userBrandAccessRepository.findBrandCodesByUserId(
+            user.id,
+        ),
+    };
+}
 }
