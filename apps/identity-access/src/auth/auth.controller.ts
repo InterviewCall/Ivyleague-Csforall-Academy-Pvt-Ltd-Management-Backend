@@ -47,4 +47,14 @@ export class AuthController {
     ) {
         return this.authService.activateAccount(token, payload);
     }
+
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    logout(@Res({ passthrough: true }) res: FastifyReply) {
+        res.clearCookie('accessToken', {
+            path: '/',
+        });
+
+        return { message: 'Signed out' };
+    }
 }
