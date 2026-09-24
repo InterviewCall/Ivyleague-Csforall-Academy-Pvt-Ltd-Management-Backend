@@ -130,12 +130,6 @@ export class AuthService {
         const { token, tokenHash, expiresAt } = this.accessTokenService.issue();
 
         await this.prisma.$transaction(async (tx) => {
-            await this.accessTokenRepository.invalidateByPurpose(
-                existingUser.id,
-                TokenPurpose.PASSWORD_RESET,
-                tx,
-            );
-
             await this.accessTokenRepository.create(
                 {
                     tokenHash,
@@ -149,6 +143,5 @@ export class AuthService {
 
         return { message: genericMessage, token };
     }
-
     
 }
