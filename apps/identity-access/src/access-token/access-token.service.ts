@@ -52,6 +52,38 @@ export class AccessTokenService {
         };
     }
 
+    async validateAccessToken(token: string) {
+        const tokenHash = this.hash(token);
+
+        const accessToken =
+            await this.accessTokenRepository.findByTokenHash(tokenHash);
+
+        if (!accessToken) {
+            return {
+                valid: false,
+            };
+        }
+
+        if (accessToken.expiresAt <= new Date()) {
+            return {
+                valid: false,
+            };
+        }
+
+        if (accessToken.usedAt) {
+            return {
+                valid: false,
+            };
+        }
+    
+        return {
+            valid: true,
+            userId: accessToken.userId,
+            purpose: accessToken.purpose,
+            expiresAt: accessToken.expiresAt,
+        };
+    }
+
 
     buildActivationUrl(token: string): string {
         const base =

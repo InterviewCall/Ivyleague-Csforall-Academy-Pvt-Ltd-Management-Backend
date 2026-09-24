@@ -42,6 +42,14 @@ export class AccessTokenRepository {
         });
     }
 
+    findByTokenHash(
+        tokenHash: string,
+    ): Promise<AccessToken | null> {
+        return this.prisma.accessToken.findFirst({
+            where: { tokenHash },
+        });
+    }
+
     markUsed(id: number, tx: Prisma.TransactionClient): Promise<AccessToken> {
         return tx.accessToken.update({
             where: { id },
