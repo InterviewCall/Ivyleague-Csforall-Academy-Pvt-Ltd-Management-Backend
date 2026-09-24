@@ -15,6 +15,20 @@ enum LearnerLifecycleStatus {
     LAPSED
 }
 
+enum LearnerResponse {
+    PENDING
+    INTERESTED
+    NOT_INTERESTED
+}
+
+enum PlacementOutcome {
+    PENDING
+    SELECTED
+    REJECTED
+    WITHDRAWN
+    EXPIRED
+}
+
 model LearnerLifecycle {
     id                    Int                    @id @default(autoincrement())
     userId                Int                    @map("user_id")
@@ -111,6 +125,7 @@ model Offboarding {
     @@index([learnerId])
     @@map("offboardings")
 }
+
 model ProgressSnapshot {
     id            Int      @id @default(autoincrement())
     learnerId     Int      @map("learner_id")
@@ -123,6 +138,7 @@ model ProgressSnapshot {
     @@index([learnerId, phase])
     @@map("progress_snapshots")
 }
+
 model Checkin {
     id              Int       @id @default(autoincrement())
     learnerId       Int       @map("learner_id")
@@ -138,6 +154,7 @@ model Checkin {
     @@index([scheduledDate])
     @@map("checkins")
 }
+
 model Pause {
     id                 Int       @id @default(autoincrement())
     learnerId          Int       @map("learner_id")
@@ -150,6 +167,7 @@ model Pause {
     @@index([learnerId])
     @@map("pauses")
 }
+
 model OutreachAttempt {
     id            Int      @id @default(autoincrement())
     riskFlagId    Int      @map("risk_flag_id")
@@ -162,4 +180,21 @@ model OutreachAttempt {
     @@unique([riskFlagId, attemptNumber])
     @@index([riskFlagId])
     @@map("outreach_attempts")
+}
+
+model PlacementOpportunity {
+    id                Int               @id @default(autoincrement())
+    learnerId         Int               @map("learner_id")
+    company           String            @db.VarChar(255)
+    role              String            @db.VarChar(255)
+    packageOffered    String            @map("package_offered") @db.VarChar(100)
+    sharedAt          DateTime          @map("shared_at")
+    responseDeadline  DateTime          @map("response_deadline")
+    learnerResponse   LearnerResponse?  @map("learner_response")
+    outcome           PlacementOutcome?
+    coordinatorUserId Int               @map("coordinator_user_id")
+
+    @@index([learnerId])
+    @@index([responseDeadline])
+    @@map("placement_opportunities")
 }
