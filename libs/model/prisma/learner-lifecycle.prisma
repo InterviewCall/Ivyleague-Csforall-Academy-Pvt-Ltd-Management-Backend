@@ -15,6 +15,20 @@ enum LearnerLifecycleStatus {
     LAPSED
 }
 
+enum LearnerResponse {
+    PENDING
+    INTERESTED
+    NOT_INTERESTED
+}
+
+enum PlacementOutcome {
+    PENDING
+    SELECTED
+    REJECTED
+    WITHDRAWN
+    EXPIRED
+}
+
 model LearnerLifecycle {
     id                    Int                    @id @default(autoincrement())
     userId                Int                    @map("user_id")
@@ -110,4 +124,77 @@ model Offboarding {
 
     @@index([learnerId])
     @@map("offboardings")
+}
+
+model ProgressSnapshot {
+    id            Int      @id @default(autoincrement())
+    learnerId     Int      @map("learner_id")
+    phase         String   @db.VarChar(50)
+    attendancePct Float    @map("attendance_pct")
+    assignmentPct Float    @map("assignment_pct")
+    mockScorePct  Float    @map("mock_score_pct")
+    syncedAt      DateTime @default(now()) @map("synced_at")
+
+    @@index([learnerId, phase])
+    @@map("progress_snapshots")
+}
+
+model Checkin {
+    id              Int       @id @default(autoincrement())
+    learnerId       Int       @map("learner_id")
+    scheduledDate   DateTime  @map("scheduled_date")
+    completedDate   DateTime? @map("completed_date")
+    statusUpdate    String    @map("status_update") @db.Text
+    queryRaised     Boolean   @default(false) @map("query_raised")
+    queryResolution String?   @map("query_resolution") @db.Text
+    psaUserId        Int       @map("psa_user_id")
+    createdAt       DateTime  @default(now()) @map("created_at")
+
+    @@index([learnerId])
+    @@index([scheduledDate])
+    @@map("checkins")
+}
+
+model Pause {
+    id                 Int       @id @default(autoincrement())
+    learnerId          Int       @map("learner_id")
+    reason             String    @db.Text
+    requestedAt        DateTime  @default(now()) @map("requested_at")
+    expectedReturnDate DateTime  @map("expected_return_date")
+    autoReviewAt       DateTime  @map("auto_review_at")
+    resumedAt          DateTime? @map("resumed_at")
+
+    @@index([learnerId])
+    @@map("pauses")
+}
+
+model OutreachAttempt {
+    id            Int      @id @default(autoincrement())
+    riskFlagId    Int      @map("risk_flag_id")
+    attemptNumber Int      @map("attempt_number")
+    channel       String   @db.VarChar(20)
+    attemptedAt   DateTime @map("attempted_at")
+    outcome       String   @db.Text
+    learnerReason String   @map("learner_reason") @db.Text
+
+    @@unique([riskFlagId, attemptNumber])
+    @@index([riskFlagId])
+    @@map("outreach_attempts")
+}
+
+model PlacementOpportunity {
+    id                Int               @id @default(autoincrement())
+    learnerId         Int               @map("learner_id")
+    company           String            @db.VarChar(255)
+    role              String            @db.VarChar(255)
+    packageOffered    String            @map("package_offered") @db.VarChar(100)
+    sharedAt          DateTime          @map("shared_at")
+    responseDeadline  DateTime          @map("response_deadline")
+    learnerResponse   LearnerResponse?  @map("learner_response")
+    outcome           PlacementOutcome?
+    coordinatorUserId Int               @map("coordinator_user_id")
+
+    @@index([learnerId])
+    @@index([responseDeadline])
+    @@map("placement_opportunities")
 }
