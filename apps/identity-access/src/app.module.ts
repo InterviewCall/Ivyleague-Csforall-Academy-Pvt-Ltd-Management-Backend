@@ -13,7 +13,7 @@ import { HashModule } from './hash/hash.module.js';
 import { TcVersionModule } from './tc-version/tc-version.module.js';
 import { BrandModule } from './brand/brand.module.js';
 import { UserStaffModule } from './user-staff/user-staff.module.js';
-
+import { AccessTokenModule } from './access-token/access-token.module.js';
 @Module({
     imports: [
         RbacModule.register(),
@@ -26,6 +26,7 @@ import { UserStaffModule } from './user-staff/user-staff.module.js';
         BrandModule,
         TcVersionModule,
         UserStaffModule,
+        AccessTokenModule,
     ],
     controllers: [AppController],
     providers: [
