@@ -31,7 +31,7 @@ import {
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @Roles(AccessRole.ADMIN,AccessRole.SALES,AccessRole.PSA)
+    @Roles(AccessRole.SALES, AccessRole.PSA)
     @Get('learners')
     getLearners(
         @Query({ schema: getLearnersSchema }) payload: GetLearnersDto,
