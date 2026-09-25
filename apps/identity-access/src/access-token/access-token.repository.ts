@@ -12,9 +12,12 @@ export class AccessTokenRepository {
 
     create(
         data: Prisma.AccessTokenCreateInput,
-        tx: Prisma.TransactionClient,
+        tx?: Prisma.TransactionClient,
     ): Promise<AccessToken> {
-        return tx.accessToken.create({ data });
+        if (tx) {
+            return tx.accessToken.create({ data });
+        }
+        return this.prisma.accessToken.create({ data });
     }
 
     findByTokenHashAndPurpose(
