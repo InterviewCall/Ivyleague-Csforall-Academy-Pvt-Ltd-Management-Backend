@@ -1,6 +1,8 @@
 import {
     Body,
     Controller,
+    Get,
+    Headers,
     Param,
     ParseIntPipe,
     Post,
@@ -31,5 +33,18 @@ export class TaAssessmentController {
         }
 
         return this.taAssessmentService.create(learnerId, payload, Number(actor.userId));
+    }
+
+    @Get('summary')
+    @Roles(AccessRole.LEARNER)
+    getSummary(
+        @Param('learnerId', ParseIntPipe) learnerId: number,
+        @Headers('x-user-id') userId?: string,
+    ) {
+        if (!userId) {
+            throw new UnauthorizedException('Authentication required');
+        }
+
+        return this.taAssessmentService.getSummary(learnerId, userId);
     }
 }

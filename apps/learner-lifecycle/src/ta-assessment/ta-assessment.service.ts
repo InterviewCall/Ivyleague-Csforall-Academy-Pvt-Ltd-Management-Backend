@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { Prisma } from '@app/model/generated/prisma/client.js';
 
@@ -51,5 +51,18 @@ export class TaAssessmentService {
 
             throw error;
         }
+    }
+    async getSummary(learnerId: number, actorUserId: string) {
+        const learner = await this.taAssessmentRepository.findLearnerById(learnerId);
+
+        if (!learner) {
+            throw new NotFoundException('Learner not found');
+        }
+
+        if (String(learner.userId) !== actorUserId) {
+            throw new ForbiddenException('You can only view your own assessment summary');
+        }
+
+        return this.taAssessmentRepository.findAllByLearnerId(learnerId);
     }
 }
