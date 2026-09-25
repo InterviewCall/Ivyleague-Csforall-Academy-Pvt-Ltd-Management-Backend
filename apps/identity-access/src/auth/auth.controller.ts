@@ -13,7 +13,9 @@ import { AuthService } from './auth.service.js';
 import {
     ActivateAccountDto,
     activateAccountSchema,
-} from './dto/activate-account.dto.js';
+    PasswordResetDto,
+    passwordResetSchema,} from './dto/activate-account.dto.js';
+
 import { SignInDto, signInSchema } from './dto/sign-in.dto.js';
 
 @Controller('auth')
@@ -52,8 +54,8 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     resetPassword(
         @Param('token') token: string,
-        @Body({ schema: activateAccountSchema })
-        payload: ActivateAccountDto,
+        @Body({ schema: passwordResetSchema  })
+        payload: PasswordResetDto,
     ) {
         return this.authService.resetPassword(token, payload);
     }
