@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createHash, randomBytes } from 'crypto';
-import { ModelService } from '@app/model';
+
 import { IssuedAccessToken } from './types/issues-access-token.type.js';
 import { DEFAULT_TTL_HOURS } from './constants/index.js';
 import { AccessTokenRepository } from './access-token.repository.js';
@@ -32,18 +32,12 @@ export class AccessTokenService {
     async createAccessToken(payload: CreateAccessTokenDto) {
         const issuedToken = this.issue();
 
-        const accessToken = await this.modelService.$transaction((tx) =>
-            this.accessTokenRepository.create(
-                {
+        const accessToken = await this.accessTokenRepository.create({
                     tokenHash: issuedToken.tokenHash,
                     purpose: payload.purpose,
                     expiresAt: issuedToken.expiresAt,
                     userId: payload.userId,
-                },
-                tx,
-            )
-        );
-
+                });
         return {
             token: issuedToken.token,
             purpose: accessToken.purpose,

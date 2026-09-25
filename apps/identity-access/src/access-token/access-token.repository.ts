@@ -19,7 +19,10 @@ export class AccessTokenRepository {
         },
         tx: Prisma.TransactionClient,
     ): Promise<AccessToken> {
-        return tx.accessToken.create({ 
+        if (tx) {
+            return tx.accessToken.create({ data });
+        }
+        return this.prisma.accessToken.create({ 
             data:{
                 tokenHash: data.tokenHash,
                 purpose: data.purpose,
