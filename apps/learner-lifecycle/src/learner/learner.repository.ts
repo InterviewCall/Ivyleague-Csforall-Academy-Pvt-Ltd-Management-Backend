@@ -27,4 +27,18 @@ export class LearnerRepository {
             },
         });
     }
+
+    findDueCheckins() {
+    return this.prisma.checkin.findMany({
+        where: {
+            scheduledDate: {
+                lte: new Date(),
+            },
+            completedDate: null,
+        },
+        orderBy: {
+            scheduledDate: 'asc',
+        },
+    });
+}
 }

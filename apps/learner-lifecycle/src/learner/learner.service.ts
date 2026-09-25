@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { CreateCheckinDto } from './dto/create-checkin.dto.js';
-import { LearnerRepository } from './learner.repository.js';
+import { LearnerRepository} from './learner.repository.js';
 
 @Injectable()
 export class LearnerService {
@@ -24,4 +24,9 @@ export class LearnerService {
             psaUserId,
         });
     }
+
+    findDueCheckins() {
+        return this.learnerRepository.findDueCheckins();
+    }
+
 }

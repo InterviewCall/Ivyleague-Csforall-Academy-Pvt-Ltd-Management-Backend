@@ -25,4 +25,5 @@ export const serviceRoutes: ServiceRoute[] = [
     { prefix: '/api/v1/brands', upstream: identityAccess },
     { prefix: '/api/v1/tc-versions', upstream: identityAccess },
     { prefix: '/api/v1/learners', upstream: learnerLifecycle },
+    {prefix: '/api/v1/checkins',upstream: learnerLifecycle},
 ];
