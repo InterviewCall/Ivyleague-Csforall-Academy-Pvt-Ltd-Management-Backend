@@ -58,5 +58,13 @@ export class AuthController {
         payload: PasswordResetDto,
     ) {
         return this.authService.resetPassword(token, payload);
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    logout(@Res({ passthrough: true }) res: FastifyReply) {
+        res.clearCookie('accessToken', {
+            path: '/',
+        });
+
+        return { message: 'Signed out' };
     }
 }
