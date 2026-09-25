@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Patch, Get, Post,Headers  } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Patch,
+    Post,
+    UnauthorizedException,
+} from '@nestjs/common';
 
 import { AccessRole, CurrentUser, Roles } from '@app/rbac';
 import type { Principal } from '@app/rbac';
@@ -25,10 +33,14 @@ import { UserService } from './user.service.js';
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
-@Get('me')
-getCurrentUser(@Headers('x-user-id') userId: string) {
-    return this.userService.getCurrentUser(userId);
-}
+
+    @Get('me')
+    getCurrentUser(@CurrentUser() actor?: Principal) {
+        if (!actor) {
+            throw new UnauthorizedException('Authentication required');
+        }
+        return this.userService.getCurrentUser(actor.userId);
+    }
 
     @Roles(AccessRole.SALES)
     @Post('learners')

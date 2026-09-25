@@ -31,16 +31,18 @@ export class RolesGuard implements CanActivate {
             AccessRole[] | undefined
         >(ROLES_KEY, [context.getHandler(), context.getClass()]);
 
-        // No @Roles on the route or its controller: this guard has no opinion.
-        if (!permittedRoles || permittedRoles.length === 0) {
-            return true;
-        }
-
         const request = context.switchToHttp().getRequest<{
             principal?: Principal;
         }>();
 
         const principal = await this.principalResolver.resolve(request);
+
+        // Unannotated routes remain open, but authenticated callers still get
+        // their principal for handlers using @CurrentUser().
+        if (!permittedRoles || permittedRoles.length === 0) {
+            request.principal = principal ?? undefined;
+            return true;
+        }
 
         if (!principal) {
             throw new UnauthorizedException('Authentication required');

@@ -325,26 +325,25 @@ async getCurrentUser(userId: string): Promise<{
     roles: string[];
     brands: string[];
 }> {
-    const id: number = Number(userId);
+    const id = Number(userId);
 
     if (!Number.isInteger(id) || id <= 0) {
         throw new NotFoundException('User not found');
     }
 
-    const user: User | null = await this.userRepository.findById(id);
+    const user = await this.userRepository.findById(id);
 
     if (!user) {
         throw new NotFoundException('User not found');
     }
 
-    const staffRoles = await this.userStaffRepository.findRolesByUserId(
-        user.id,
-    );
+    const staffRoles =await this.userStaffRepository.findRolesByUserId(user.id);
 
-    const roles: string[] =
-        user.userType === UserType.ADMIN
+    const roles = user.userType === UserType.ADMIN
             ? [AccessRole.ADMIN, ...staffRoles]
             : staffRoles;
+
+    const brands =await this.userBrandAccessRepository.findBrandCodesByUserId(user.id,);
 
     return {
         publicId: user.publicId,
@@ -354,9 +353,7 @@ async getCurrentUser(userId: string): Promise<{
         userType: user.userType,
         status: user.status,
         roles,
-        brands: await this.userBrandAccessRepository.findBrandCodesByUserId(
-            user.id,
-        ),
-    };
-}
+        brands,
+         };
+    }
 }
