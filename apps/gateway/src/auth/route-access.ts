@@ -10,11 +10,18 @@ export type AccessRule = {
     method: string;
     path: string | RegExp;
     roles: readonly string[];
+    authenticated?: boolean;
 }
 
 const ADMIN_ONLY = ['ADMIN'] as const;
 
 export const accessRules: AccessRule[] = [
+    {
+        method: 'POST',
+        path: '/api/v1/auth/logout',
+        authenticated: true,
+        roles: [],
+    },
     { method: 'POST', path: '/api/v1/users/staff', roles: ADMIN_ONLY },
     {
         method: 'POST',
