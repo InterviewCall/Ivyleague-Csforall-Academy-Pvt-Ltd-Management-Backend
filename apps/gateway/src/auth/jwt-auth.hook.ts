@@ -1,5 +1,6 @@
+import '@fastify/cookie';
 import type { JwtService } from '@nestjs/jwt';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest} from 'fastify';
 
 import { isPublicPath } from './public-paths.js';
 import { findAccessRule } from './route-access.js';
