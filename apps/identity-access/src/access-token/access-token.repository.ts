@@ -11,10 +11,29 @@ export class AccessTokenRepository {
     constructor(private readonly prisma: ModelService) {}
 
     create(
-        data: Prisma.AccessTokenCreateInput,
+        data: {
+            tokenHash: string;
+            purpose: TokenPurpose;
+            expiresAt: Date;
+            userId: number;
+        },
         tx: Prisma.TransactionClient,
     ): Promise<AccessToken> {
-        return tx.accessToken.create({ data });
+        if (tx) {
+            return tx.accessToken.create({ data });
+        }
+        return this.prisma.accessToken.create({ 
+            data:{
+                tokenHash: data.tokenHash,
+                purpose: data.purpose,
+                expiresAt: data.expiresAt,
+                user: {
+                    connect: {
+                        id: data.userId,
+                    },
+                },
+            }, 
+        });
     }
 
     findByTokenHashAndPurpose(
