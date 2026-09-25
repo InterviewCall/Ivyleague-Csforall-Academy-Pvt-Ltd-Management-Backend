@@ -18,8 +18,17 @@ export const activateAccountSchema = z
         message: 'passwords do not match',
     });
 
+export const passwordResetSchema = activateAccountSchema;
+
 export class ActivateAccountDto implements z.infer<
     typeof activateAccountSchema
+> {
+    password: string;
+    confirmPassword: string;
+}
+
+export class PasswordResetDto implements z.infer<
+    typeof passwordResetSchema
 > {
     password: string;
     confirmPassword: string;

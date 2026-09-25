@@ -110,4 +110,40 @@ export class AuthService {
 
         return { activated: true };
     }
+
+    async resetPassword(
+        token: string,
+        payload: ActivateAccountDto,
+    ): Promise<{ reset: true }> {
+        const tokenHash = this.accessTokenService.hash(token);
+
+        const resetToken = await this.accessTokenRepository.findByTokenHashAndPurpose(
+            tokenHash,
+            TokenPurpose.PASSWORD_RESET,
+        );
+
+        if (
+            !resetToken ||
+            resetToken.usedAt !== null ||
+            resetToken.expiresAt.getTime() <= Date.now()
+        ) {
+            throw new BadRequestException(
+                'This password reset link is invalid or has expired',
+            );
+        }
+
+        const passwordHash = await this.hashService.hash(payload.password);
+
+        await this.prisma.$transaction(async (tx) => {
+            await this.accessTokenRepository.markUsed(resetToken.id, tx);
+
+            await this.userRepository.updatePassword(
+                resetToken.userId,
+                passwordHash,
+                tx,
+            );
+        });
+
+        return { reset: true };
+    }
 }

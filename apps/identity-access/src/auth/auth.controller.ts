@@ -13,7 +13,9 @@ import { AuthService } from './auth.service.js';
 import {
     ActivateAccountDto,
     activateAccountSchema,
-} from './dto/activate-account.dto.js';
+    PasswordResetDto,
+    passwordResetSchema,} from './dto/activate-account.dto.js';
+
 import { SignInDto, signInSchema } from './dto/sign-in.dto.js';
 
 @Controller('auth')
@@ -48,6 +50,14 @@ export class AuthController {
         return this.authService.activateAccount(token, payload);
     }
 
+    @Post('password-reset/:token')
+    @HttpCode(HttpStatus.OK)
+    resetPassword(
+        @Param('token') token: string,
+        @Body({ schema: passwordResetSchema  })
+        payload: PasswordResetDto,
+    ) {
+        return this.authService.resetPassword(token, payload);
     @Post('logout')
     @HttpCode(HttpStatus.OK)
     logout(@Res({ passthrough: true }) res: FastifyReply) {

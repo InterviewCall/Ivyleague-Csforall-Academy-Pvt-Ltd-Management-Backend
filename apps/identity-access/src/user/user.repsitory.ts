@@ -41,4 +41,15 @@ export class UserRepository {
             data: { passwordHash, status: UserStatus.ACTIVE },
         });
     }
+
+    updatePassword(
+        userId: number,
+        passwordHash: string,
+        tx: Prisma.TransactionClient,
+    ): Promise<User> {
+        return tx.user.update({
+            where: { id: userId },
+            data: { passwordHash },
+        });
+    }
 }
