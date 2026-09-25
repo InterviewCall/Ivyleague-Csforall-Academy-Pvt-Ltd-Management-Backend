@@ -21,6 +21,15 @@ export const accessRules: AccessRule[] = [
         path: '/api/v1/users/learners',
         roles: ['SALES'],
     },
+
+    {
+
+    method: 'GET',
+    path: '/api/v1/users/learners',
+    roles: ['SALES', 'PSA'],
+    
+    },
+
     {
         method: 'POST',
         path: /^\/api\/v1\/users\/[^/]+\/brand-access$/,

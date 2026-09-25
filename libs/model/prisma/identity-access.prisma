@@ -53,6 +53,11 @@ model User {
     brandAccess   UserBrandAccess[]
     tcAcceptances TcAcceptance[]
 
+    @@index([userType, status])
+    @@index([userType, createdAt])
+    @@index([userType, fullName])
+    @@index([userType, phone])
+    @@index([userType, email])
     @@map("users")
 }
 
