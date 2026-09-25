@@ -23,6 +23,7 @@ import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { UserRepository } from '../user/user.repsitory.js';
 import { ActivateAccountDto } from './dto/activate-account.dto.js';
 import { SignInDto } from './dto/sign-in.dto.js';
+import { PasswordResetRequestDto } from './dto/password-reset-request.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,7 @@ export class AuthService {
         private readonly userStaffRepository: UserStaffRepository,
         private readonly accessTokenRepository: AccessTokenRepository,
         private readonly accessTokenService: AccessTokenService,
+        
     ) {}
 
     async signIn(payload: SignInDto): Promise<string> {
@@ -110,4 +112,31 @@ export class AuthService {
 
         return { activated: true };
     }
+
+    async requestPasswordReset(
+        payload: PasswordResetRequestDto,
+    ): Promise<{ message: string; token?: string }> {
+        const genericMessage =
+            'If an account exists for this email, a password reset link will be sent.';
+
+        const existingUser: User | null = await this.userRepository.findByEmail(
+            payload.email,
+        );
+
+        if (!existingUser) {
+            return { message: genericMessage };
+        }
+
+        const { token, tokenHash, expiresAt } = this.accessTokenService.issue();
+
+        await this.accessTokenRepository.create({
+            tokenHash,
+            purpose: TokenPurpose.PASSWORD_RESET,
+            expiresAt,
+            user: { connect: { id: existingUser.id } },
+        });
+
+        return { message: genericMessage, token };
+    }
+    
 }

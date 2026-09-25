@@ -15,6 +15,10 @@ import {
     activateAccountSchema,
 } from './dto/activate-account.dto.js';
 import { SignInDto, signInSchema } from './dto/sign-in.dto.js';
+import {
+    PasswordResetRequestDto,
+    passwordResetRequestSchema,
+} from './dto/password-reset-request.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -48,13 +52,13 @@ export class AuthController {
         return this.authService.activateAccount(token, payload);
     }
 
-    @Post('logout')
+    @Post('password-reset/request')
     @HttpCode(HttpStatus.OK)
-    logout(@Res({ passthrough: true }) res: FastifyReply) {
-        res.clearCookie('accessToken', {
-            path: '/',
-        });
-
-        return { message: 'Signed out' };
+    requestPasswordReset(
+        @Body({ schema: passwordResetRequestSchema })
+        payload: PasswordResetRequestDto,
+    ) {
+        return this.authService.requestPasswordReset(payload);
     }
+
 }

@@ -41,4 +41,5 @@ export class UserRepository {
             data: { passwordHash, status: UserStatus.ACTIVE },
         });
     }
+
 }
