@@ -64,7 +64,9 @@ export class AuthService {
         const roles: string[] =
             existingUser.userType === UserType.ADMIN
                 ? [AccessRole.ADMIN, ...staffRoles]
-                : staffRoles;
+                : existingUser.userType === UserType.LEARNER
+                    ? [AccessRole.LEARNER]
+                    : staffRoles;
 
         return this.jwtService.signAsync({
             userId: existingUser.id,
