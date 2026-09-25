@@ -74,6 +74,7 @@ export function registerJwtAuthHook(
             // the owning service with @RolesOnly, which admits no override.
             const permitted =
                 !rule ||
+                rule.authenticated === true ||
                 rule.roles.some((role) => roles.includes(role)) ||
                 roles.includes('ADMIN');
 
