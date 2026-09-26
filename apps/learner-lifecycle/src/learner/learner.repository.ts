@@ -11,26 +11,18 @@ import {
 export class LearnerRepository {
   constructor(private readonly prisma: ModelService) {}
 
-    findById(id: number) {
+
+    findStatusById(id: number) {
         return this.prisma.learnerLifecycle.findUnique({
-            where: { id },
+            where: {
+                id,
+            },
             select: {
                 id: true,
-                userId: true,
                 currentStatus: true,
-                statusUpdatedAt: true,
-                taAssessments: {
-                select: {
-                    sessionNumber: true,
-                    learnerFacingSummary: true,
-                },
-                orderBy: { sessionNumber: 'asc' },
-                take: 2,
-                },
             },
         });
     }
-
     createDsaReview(data: Prisma.DsaReviewCreateInput, tx: Prisma.TransactionClient) {
         return tx.dsaReview.create({ data });
     }
@@ -49,4 +41,6 @@ export class LearnerRepository {
             },
         });
     }
+
+    
 }

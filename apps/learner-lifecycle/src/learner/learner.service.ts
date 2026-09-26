@@ -1,42 +1,60 @@
-import {ForbiddenException,Injectable,NotFoundException, UnauthorizedException, } from '@nestjs/common';
+import {Injectable,NotFoundException, ConflictException } from '@nestjs/common';
 
-import { AccessRole } from '@app/rbac';
-import type { Principal } from '@app/rbac';
-
+import { ModelService } from '@app/model';
+import { LearnerLifecycleStatus } from '@app/model/generated/prisma/enums.js';
 import { LearnerRepository } from './learner.repository.js';
+import { CreateDsaReviewDto } from './dto/create-dsa-review.dto.js';
+
+
 
 @Injectable()
 export class LearnerService {
-  constructor(private readonly learnerRepository: LearnerRepository) {}
+    constructor(
+        private readonly prisma: ModelService,
+        private readonly learnerRepository: LearnerRepository,
 
-  async findById(id: number, principal: Principal) {
-    const learner = await this.learnerRepository.findById(id);
+    ) {}
 
-    if (!learner) {
-      throw new NotFoundException('Learner not found');
+    async createDsaReview(
+        learnerId: number,
+        payload: CreateDsaReviewDto,
+        reviewedByUserId: number,
+    ) {
+        const learner = await this.learnerRepository.findStatusById(learnerId);
+
+        if (!learner) {
+            throw new NotFoundException('Learner not found');
+        }
+
+        if (learner.currentStatus !== LearnerLifecycleStatus.ACTIVE_DSA) {
+            throw new ConflictException('Learner is not currently in the DSA stage');
+        }
+
+        return this.prisma.$transaction(async (tx) => {
+            const review = await this.learnerRepository.createDsaReview(
+                {
+                    finalMarks: payload.finalMarks,
+                    passed: payload.passed,
+                    reason: payload.reason,
+                    reviewedByUserId,
+                    reviewedAt: new Date(),
+                    learnerLifecycle: {
+                        connect: { id: learnerId },
+                    },
+                },
+                tx,
+            );
+
+            await this.learnerRepository.updateStatus(
+                learnerId,
+                payload.passed
+                    ? LearnerLifecycleStatus.ACTIVE_SYSTEM_DESIGN
+                    : LearnerLifecycleStatus.ACTIVE_DSA,
+                tx,
+            );
+
+            return review;
+        });
     }
 
-    const isLearner = principal.roles.includes(AccessRole.LEARNER);
-
-    if (isLearner) {
-      const userId = Number(principal.userId);
-
-      if (!Number.isInteger(userId)) {
-        throw new UnauthorizedException('Invalid principal');
-      }
-
-      if (learner.userId !== userId) {
-        throw new ForbiddenException(
-          'You do not have permission to view this learner',
-        );
-      }
-    }
-
-    return {
-      id: learner.id,
-      currentStatus: learner.currentStatus,
-      statusUpdatedAt: learner.statusUpdatedAt,
-      assessments: learner.taAssessments,
-    };
-  }
 }
