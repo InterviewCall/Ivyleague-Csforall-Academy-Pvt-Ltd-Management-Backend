@@ -2,17 +2,17 @@ import { Controller, Get } from '@nestjs/common';
 
 import { AccessRole, Roles } from '@app/rbac';
 
-import { LearnerService } from './learner.service.js';
+import { CheckinService } from './checkin.service.js';
 
 @Controller('checkins')
-export class CheckinController {
+export class CheckinDueController {
     constructor(
-        private readonly learnerService: LearnerService,
+        private readonly checkinService: CheckinService,
     ) {}
 
     @Roles(AccessRole.PSA)
     @Get('due')
     getDueCheckins() {
-        return this.learnerService.findDueCheckins();
+        return this.checkinService.findDueCheckins();
     }
 }

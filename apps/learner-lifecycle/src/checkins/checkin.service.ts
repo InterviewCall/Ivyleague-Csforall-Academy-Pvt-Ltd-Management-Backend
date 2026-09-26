@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
 import { CreateCheckinDto } from './dto/create-checkin.dto.js';
-import { LearnerRepository} from './learner.repository.js';
+import { CheckinRepository} from './checkin.repository.js';
 
 @Injectable()
-export class LearnerService {
+export class CheckinService {
     constructor(
-        private readonly learnerRepository: LearnerRepository,
+        private readonly checkinRepository: CheckinRepository,
     ) {}
 
     createCheckin(
@@ -14,7 +14,7 @@ export class LearnerService {
         payload: CreateCheckinDto,
         psaUserId: number,
     ) {
-        return this.learnerRepository.createCheckin({
+        return this.checkinRepository.createCheckin({
             learnerId,
             scheduledDate: payload.scheduledDate,
             completedDate: payload.completedDate,
@@ -26,7 +26,7 @@ export class LearnerService {
     }
 
     findDueCheckins() {
-        return this.learnerRepository.findDueCheckins();
+        return this.checkinRepository.findDueCheckins();
     }
 
 }

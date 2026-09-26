@@ -4,13 +4,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { RbacModule, RolesGuard } from '@app/rbac';
 import { ModelModule } from '@app/model';
 
-import { LearnerModule } from './learner/learner.module.js';
+import { CheckinModule } from './checkins/checkin.module.js';
 
 @Module({
     imports: [
         RbacModule.register(),
         ModelModule,
-        LearnerModule,
+        CheckinModule,
     ],
     providers: [
         {

@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ModelService } from '@app/model';
 
 @Injectable()
-export class LearnerRepository {
+export class CheckinRepository {
     constructor(private readonly prisma: ModelService) {}
 
     createCheckin(data: {

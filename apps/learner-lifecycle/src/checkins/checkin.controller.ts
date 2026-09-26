@@ -16,12 +16,12 @@ import {
     createCheckinSchema,
 } from './dto/create-checkin.dto.js';
 
-import { LearnerService } from './learner.service.js';
+import { CheckinService } from './checkin.service.js';
 
 @Controller('learners')
-export class LearnerController {
+export class CheckinController {
     constructor(
-        private readonly learnerService: LearnerService,
+        private readonly checkinService: CheckinService,
     ) {}
 
     @Roles(AccessRole.PSA)
@@ -38,7 +38,7 @@ export class LearnerController {
             );
         }
 
-        return this.learnerService.createCheckin(
+        return this.checkinService.createCheckin(
             id,
             payload,
             Number(actor.userId),
