@@ -13,15 +13,11 @@ export interface ServiceRoute {
     upstream: string;
 }
 
-const environment = (
-    globalThis as typeof globalThis & {
-        process?: { env?: Record<string, string | undefined> };
-    }
-).process?.env;
 const identityAccess =
-    environment?.IDENTITY_ACCESS_URL ?? 'http://localhost:3001';
+    process.env.IDENTITY_ACCESS_URL ?? 'http://localhost:3001';
+
 const learnerLifecycle =
-    environment?.LEARNER_LIFECYCLE_URL ?? 'http://localhost:3003';
+    process.env.LEARNER_LIFECYCLE_URL ?? 'http://localhost:3003';
 
 export const serviceRoutes: ServiceRoute[] = [
     { prefix: '/api/v1/auth', upstream: identityAccess },
