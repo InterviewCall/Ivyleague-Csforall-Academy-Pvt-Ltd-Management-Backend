@@ -337,21 +337,7 @@ export class UserService {
     if (!user) {
         throw new NotFoundException('User not found');
     }
-
-    if (user.userType === UserType.LEARNER) {
-        return {
-            publicId: user.publicId,
-            fullName: user.fullName,
-            email: user.email,
-            phone: user.phone,
-            userType: user.userType,
-            status: user.status,
-            roles: [],
-            brands: [],
-        };
-    }
-
-    const [roles, brands] = await Promise.all([
+        const [roles, brands] = await Promise.all([
         this.userStaffRepository.findRolesByUserId(user.id),
         this.userBrandAccessRepository.findBrandCodesByUserId(user.id),
     ]);
