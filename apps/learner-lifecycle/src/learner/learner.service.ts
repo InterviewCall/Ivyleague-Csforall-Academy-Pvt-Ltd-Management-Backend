@@ -56,5 +56,4 @@ export class LearnerService {
             return review;
         });
     }
-
 }

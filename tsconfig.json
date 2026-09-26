@@ -19,7 +19,7 @@
     "strictPropertyInitialization": false,
     "types": [
       "vitest/globals",
-      "node"
+      "node",
     ],
     "paths": {
       "@app/common": [
