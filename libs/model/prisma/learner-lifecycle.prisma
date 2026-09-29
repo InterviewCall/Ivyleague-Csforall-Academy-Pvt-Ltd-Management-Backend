@@ -40,11 +40,11 @@ model LearnerLifecycle {
     createdAt             DateTime               @default(now()) @map("created_at")
     updatedAt             DateTime               @updatedAt @map("updated_at")
 
-    taAssessments TaAssessment[]
+    taAssessments   TaAssessment[]
     batchPlacements BatchPlacement[]
-    riskFlags RiskFlag[]
-    dsaReviews DsaReview[]
-    offboardings Offboarding[]
+    riskFlags       RiskFlag[]
+    dsaReviews      DsaReview[]
+    offboardings    Offboarding[]
 
     @@map("learner_lifecycles")
 }
@@ -114,11 +114,11 @@ model DsaReview {
 }
 
 model Offboarding {
-    id                Int      @id @default(autoincrement())
-    learnerId         Int      @map("learner_id")
-    reasonCode        String   @map("reason_code")
-    offboardedAt      DateTime @map("offboarded_at")
-    approvedByUserId  Int      @map("approved_by_user_id")
+    id               Int      @id @default(autoincrement())
+    learnerId        Int      @map("learner_id")
+    reasonCode       String   @map("reason_code")
+    offboardedAt     DateTime @map("offboarded_at")
+    approvedByUserId Int      @map("approved_by_user_id")
 
     learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Cascade)
 
@@ -147,7 +147,7 @@ model Checkin {
     statusUpdate    String    @map("status_update") @db.Text
     queryRaised     Boolean   @default(false) @map("query_raised")
     queryResolution String?   @map("query_resolution") @db.Text
-    psaUserId        Int       @map("psa_user_id")
+    psaUserId       Int       @map("psa_user_id")
     createdAt       DateTime  @default(now()) @map("created_at")
 
     @@index([learnerId])
@@ -187,12 +187,13 @@ model PlacementOpportunity {
     learnerId         Int               @map("learner_id")
     company           String            @db.VarChar(255)
     role              String            @db.VarChar(255)
-    packageOffered    String            @map("package_offered") @db.VarChar(100)
+    packageOffered    Decimal           @map("package_offered") @db.Decimal(12, 2)
     sharedAt          DateTime          @map("shared_at")
     responseDeadline  DateTime          @map("response_deadline")
     learnerResponse   LearnerResponse?  @map("learner_response")
     outcome           PlacementOutcome?
     coordinatorUserId Int               @map("coordinator_user_id")
+    flagged           Boolean           @default(false)
 
     @@index([learnerId])
     @@index([responseDeadline])
