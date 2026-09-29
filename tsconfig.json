@@ -44,12 +44,17 @@
         "./libs/rbac/src/index.js"
       ],
       "@app/rbac/*": [
-        "./libs/rbac/src/*"
+        "./libs/rbac/src/*" 
       ]
     }
   },
-  "exclude": [
-    "node_modules",
-    "dist"
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/identity-access/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/support-cases/tsconfig.app.json"
+    }
   ]
 }
