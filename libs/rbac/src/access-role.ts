@@ -12,6 +12,7 @@ import { StaffRole } from '@app/model/generated/prisma/enums.js';
  */
 export const AccessRole = {
     ADMIN: 'ADMIN',
+    LEARNER: 'LEARNER',
     ...StaffRole,
 } as const;
 
