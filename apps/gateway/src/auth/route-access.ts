@@ -37,6 +37,11 @@ export const accessRules: AccessRule[] = [
         roles: ADMIN_ONLY,
     },
     { method: 'POST', path: '/api/v1/tc-versions', roles: ADMIN_ONLY },
+    {
+        method: 'GET',
+        path: /^\/api\/v1\/cases\/[^/]+\/evidence-package$/,
+        roles: ['ACADEMIC_HEAD'],
+    },
     { method: 'POST', path: '/api/v1/brands', roles: ADMIN_ONLY },
     {
         method: 'PATCH',
