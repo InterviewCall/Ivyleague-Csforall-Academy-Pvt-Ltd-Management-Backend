@@ -1,6 +1,6 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 
-import { AccessRole, CurrentUser, Roles } from '@app/rbac';
+import { AccessRole, Authenticated, CurrentUser, Roles } from '@app/rbac';
 import type { Principal } from '@app/rbac';
 
 import {
@@ -70,5 +70,15 @@ export class UserController {
         @Body({ schema: grantStaffRolesSchema }) payload: GrantStaffRolesDto,
     ) {
         return this.userService.grantRolesToStaff(publicId, payload);
+    }
+
+    /**
+     * Returns the authenticated caller's profile,
+     * assigned roles, and accessible brands.
+     */
+    @Authenticated()
+    @Get('me')
+    getCurrentUser(@CurrentUser() actor: Principal) {
+        return this.userService.getCurrentUser(actor.userId);
     }
 }
