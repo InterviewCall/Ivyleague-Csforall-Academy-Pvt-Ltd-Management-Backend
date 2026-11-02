@@ -6,10 +6,13 @@ import {
     Patch,
     Param,
     Delete,
+    Query,
 } from '@nestjs/common';
 import { BrandService } from './brand.service.js';
 import { CreateBrandDto, createBrandSchema } from './dto/create-brand.dto.js';
+import { GetBrandsQueryDto, getBrandsQuerySchema } from './dto/get-brands-query.dto.js';
 import { UpdateBrandDto } from './dto/update-brand.dto.js';
+import { AccessRole, Roles } from '@app/rbac';
 
 @Controller('brands')
 export class BrandController {
@@ -20,9 +23,20 @@ export class BrandController {
         return this.brandService.createBrand(payload);
     }
 
+    @Roles(
+        AccessRole.SALES,
+        AccessRole.PSA,
+        AccessRole.ACADEMIC_HEAD,
+        AccessRole.FINANCE,
+        AccessRole.TA,
+        AccessRole.PLACEMENT_COORDINATOR,
+    )
     @Get()
-    findAll() {
-        return this.brandService.findAll();
+    findAll(
+        @Query({ schema: getBrandsQuerySchema })
+        query: GetBrandsQueryDto,
+    ) {
+        return this.brandService.findAll(query);
     }
 
     @Get(':id')
