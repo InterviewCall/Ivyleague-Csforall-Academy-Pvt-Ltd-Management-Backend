@@ -41,4 +41,22 @@ export class UserRepository {
             data: { passwordHash, status: UserStatus.ACTIVE },
         });
     }
+
+      /**
+     * Fetches only the fields required for the authenticated user's profile.
+     * Sensitive fields such as passwordHash are intentionally excluded.
+     */
+    findProfileById(id: number) {
+        return this.prisma.user.findUnique({
+            where: { id },
+            select: {
+                publicId: true,
+                fullName: true,
+                email: true,
+                phone: true,
+                userType: true,
+                status: true,
+            },
+        });
+    }
 }

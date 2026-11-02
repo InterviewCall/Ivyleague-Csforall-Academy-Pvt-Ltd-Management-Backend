@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
-import { RBAC_PRINCIPAL_RESOLVER, ROLES_KEY } from './rbac.constants.js';
+import { AUTHENTICATED_KEY, RBAC_PRINCIPAL_RESOLVER, ROLES_KEY } from './rbac.constants.js';
 import type { Principal, PrincipalResolver } from './principal.js';
 
 /**
@@ -31,8 +31,17 @@ export class RolesGuard implements CanActivate {
             AccessRole[] | undefined
         >(ROLES_KEY, [context.getHandler(), context.getClass()]);
 
-        // No @Roles on the route or its controller: this guard has no opinion.
-        if (!permittedRoles || permittedRoles.length === 0) {
+        const requiresAuthentication =
+            this.reflector.getAllAndOverride<boolean>(
+                AUTHENTICATED_KEY,
+                [context.getHandler(), context.getClass()],
+            ) ?? false;
+
+        // Skip routes that require neither authentication nor role restrictions.
+        if (
+            !requiresAuthentication &&
+            (!permittedRoles || permittedRoles.length === 0)
+        ) {
             return true;
         }
 
@@ -46,15 +55,17 @@ export class RolesGuard implements CanActivate {
             throw new UnauthorizedException('Authentication required');
         }
 
-        // ADMIN reaches every route without being listed.
-        const permitted =
-            principal.roles.includes(AccessRole.ADMIN) ||
-            principal.roles.some((role) => permittedRoles.includes(role));
+        // ADMIN is allowed on every role-restricted route without being listed.
+        if (permittedRoles && permittedRoles.length > 0) {
+            const permitted =
+                principal.roles.includes(AccessRole.ADMIN) ||
+                principal.roles.some((role) => permittedRoles.includes(role));
 
-        if (!permitted) {
-            throw new ForbiddenException(
-                'You do not have permission to perform this action',
-            );
+            if (!permitted) {
+                throw new ForbiddenException(
+                    'You do not have permission to perform this action',
+                );
+            }
         }
 
         // Made available to handlers via @CurrentUser().

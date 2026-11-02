@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { ModelService } from '@app/model';
+import { AccessRole } from '@app/rbac';
 import {
     Brand,
     Prisma,
@@ -312,5 +313,47 @@ export class UserService {
 
             throw error;
         }
+    }
+
+    async getCurrentUser(userId: string): Promise<{
+        publicId: string;
+        fullName: string;
+        email: string;
+        phone: string;
+        userType: UserType;
+        status: UserStatus;
+        roles: AccessRole[];
+        brands: string[];
+    }> {
+        // The caller ID comes from the authenticated identity forwarded by the gateway.
+        const numericUserId = Number(userId);
+
+        if (!Number.isSafeInteger(numericUserId) || numericUserId <= 0) {
+            throw new NotFoundException('User not found');
+        }
+
+        const user = await this.userRepository.findProfileById(numericUserId);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Fetch role and brand assignments concurrently to avoid unnecessary database round-trips.
+        const [staffRoles, brands] = await Promise.all([
+            this.userStaffRepository.findRolesByUserId(numericUserId),
+            this.userBrandAccessRepository.findBrandCodesByUserId(numericUserId),
+        ]);
+
+        // ADMIN is stored as UserType rather than StaffRole, so include it explicitly.
+        const roles: AccessRole[] =
+            user.userType === UserType.ADMIN
+                ? [AccessRole.ADMIN, ...staffRoles]
+                : staffRoles;
+
+        return {
+            ...user,
+            roles,
+            brands,
+        };
     }
 }

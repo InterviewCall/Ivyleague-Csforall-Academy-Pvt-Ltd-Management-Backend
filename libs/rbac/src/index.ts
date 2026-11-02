@@ -1,4 +1,5 @@
 export * from './access-role.js';
+export * from './authenticated.decorator.js';
 export * from './current-user.decorator.js';
 export * from './header-principal.resolver.js';
 export * from './principal.js';
