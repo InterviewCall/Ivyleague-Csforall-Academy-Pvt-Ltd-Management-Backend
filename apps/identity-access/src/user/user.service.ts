@@ -28,6 +28,7 @@ import { UpdateUserStatusDto } from './dto/update-user-status.dto.js';
 import { UserStaffRepository } from '../user-staff/user-staff.repository.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
 import { CreateLearnerDto } from './dto/create-learner.dto.js';
+import { GetLearnersQueryDto } from './dto/get-learners-query.dto.js';
 import { UserRepository } from './user.repsitory.js';
 import { StaffAccount } from './types/staff-account.type.js';
 import { LearnerAccount } from './types/learner-account.type.js';
@@ -312,5 +313,16 @@ export class UserService {
 
             throw error;
         }
+    }
+
+    async getLearners(query: GetLearnersQueryDto) {
+        const page = await this.userRepository.findLearnerPage(query);
+
+        return {
+            items: page.rows,
+            page: query.page,
+            pageSize: query.pageSize,
+            totalItems: page.count,
+        };
     }
 }

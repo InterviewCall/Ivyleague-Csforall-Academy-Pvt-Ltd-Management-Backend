@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post , Query, Get} from '@nestjs/common';
 
 import { AccessRole, CurrentUser, Roles } from '@app/rbac';
 import type { Principal } from '@app/rbac';
@@ -20,6 +20,10 @@ import {
     GrantStaffRolesDto,
     grantStaffRolesSchema,
 } from './dto/grant-staff-roles.dto.js';
+import {
+    GetLearnersQueryDto,
+    getLearnersQuerySchema,
+} from './dto/get-learners-query.dto.js';
 import { UserService } from './user.service.js';
 
 @Controller('users')
@@ -70,5 +74,14 @@ export class UserController {
         @Body({ schema: grantStaffRolesSchema }) payload: GrantStaffRolesDto,
     ) {
         return this.userService.grantRolesToStaff(publicId, payload);
+    }
+
+    @Roles(AccessRole.SALES, AccessRole.PSA)
+    @Get('learners')
+    getLearners(
+        @Query({ schema: getLearnersQuerySchema })
+        query: GetLearnersQueryDto,
+    ) {
+        return this.userService.getLearners(query);
     }
 }
