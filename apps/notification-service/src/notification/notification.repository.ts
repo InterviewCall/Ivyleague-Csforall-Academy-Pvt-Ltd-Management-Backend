@@ -50,4 +50,17 @@ export class NotificationRepository {
             data,
         });
     }
+
+    async findUserById(userId: number) {
+    return this.prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            id: true,
+            email: true,
+            fullName: true,
+        },
+    });
+}
 }

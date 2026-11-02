@@ -65,4 +65,44 @@ export class NotificationService {
             }
         }
     }
+
+    async processRiskFlagged(payload: {
+        riskFlagId: number;
+        learnerId: number;
+        userId: number;
+        brandId: number;
+        reason: string;
+        flaggedAt: Date;
+    }): Promise<void> {
+        const user =
+            await this.notificationRepository.findUserById(
+                payload.userId,
+            );
+
+        if (!user) {
+            throw new Error(
+                `User not found: ${payload.userId}`,
+            );
+        }
+
+        await this.sendNotification({
+            recipientUserId: user.id,
+            brandId: payload.brandId,
+            recipientEmail: user.email,
+            recipientName: user.fullName,
+            subject: '',
+            channels: [NotificationChannel.EMAIL],
+            templateKeys: {
+                EMAIL: 'RiskFlagged',
+            },
+            data: {
+                learnerId: String(payload.learnerId),
+                riskFlagId: String(payload.riskFlagId),
+                reason: payload.reason,
+                flaggedAt: new Date(
+                    payload.flaggedAt,
+                ).toISOString(),
+            },
+        });
+    }
 }

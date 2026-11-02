@@ -4,13 +4,15 @@ import { NotificationService } from './notification.service.js';
 import { EmailExecutor } from './executors/Email.executor.js';
 import { AccountActivationProcessor } from './account-activation/account-activation.processor.js';
 import { NotificationRepository } from './notification.repository.js';
+import { RiskFlaggedProcessor } from './risk-flagged/risk-flagged.processor.js';
 
 @Module({
     providers: [
         NotificationService,
         EmailExecutor,
         AccountActivationProcessor,
+        RiskFlaggedProcessor,
         NotificationRepository,
-    ],
+    ]
 })
 export class NotificationModule {}

@@ -55,6 +55,9 @@
     },
     {
       "path": "./apps/notification-service/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/learner-lifecycle/tsconfig.app.json"
     }
   ]
 }
