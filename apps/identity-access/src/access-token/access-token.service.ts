@@ -76,4 +76,28 @@ export class AccessTokenService {
             throw error;
         }
     }
+
+    async validateAccessToken(token: string) {
+        const tokenHash = this.hash(token);
+
+        const accessToken =
+            await this.accessTokenRepository.findByTokenHash(tokenHash);
+
+        if (
+            !accessToken ||
+            accessToken.usedAt !== null ||
+            accessToken.expiresAt.getTime() <= Date.now()
+        ) {
+            return {
+                valid: false,
+            };
+        }
+
+        return {
+            valid: true,
+            userId: accessToken.userId,
+            purpose: accessToken.purpose,
+            expiresAt: accessToken.expiresAt,
+        };
+    }
 }

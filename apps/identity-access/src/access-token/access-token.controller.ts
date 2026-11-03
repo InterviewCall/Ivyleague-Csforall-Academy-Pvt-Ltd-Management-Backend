@@ -1,7 +1,9 @@
 import {
     Body,
     Controller,
+    Get,
     Post,
+    Param,
     UseGuards,
 } from '@nestjs/common';
 
@@ -22,5 +24,10 @@ export class AccessTokenController {
         payload: CreateAccessTokenDto,
     ) {
         return this.accessTokenService.createAccessToken(payload);
+    }
+
+    @Get(':token/validate')
+    validateAccessToken(@Param('token') token: string) {
+        return this.accessTokenService.validateAccessToken(token);
     }
 }

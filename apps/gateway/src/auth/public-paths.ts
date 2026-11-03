@@ -14,9 +14,19 @@ export const publicPaths: string[] = [
     '/health',
 ];
 
-export function isPublicPath(pathname: string): boolean {
-    return publicPaths.some(
+export function isPublicPath(
+    pathname: string,
+    method?: string,
+): boolean {
+    const isConfiguredPublicPath = publicPaths.some(
         (publicPath) =>
-            pathname === publicPath || pathname.startsWith(`${publicPath}/`),
+            pathname === publicPath ||
+            pathname.startsWith(`${publicPath}/`),
     );
+
+    const isTokenValidationPath =
+        method?.toUpperCase() === 'GET' &&
+        /^\/api\/v1\/tokens\/[^/]+\/validate$/.test(pathname);
+
+    return isConfiguredPublicPath || isTokenValidationPath;
 }
