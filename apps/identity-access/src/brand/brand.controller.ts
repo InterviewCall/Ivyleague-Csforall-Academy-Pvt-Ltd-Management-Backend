@@ -18,6 +18,7 @@ import { AccessRole, Roles } from '@app/rbac';
 export class BrandController {
     constructor(private readonly brandService: BrandService) {}
 
+    @Roles(AccessRole.ADMIN)
     @Post()
     create(@Body({ schema: createBrandSchema }) payload: CreateBrandDto) {
         return this.brandService.createBrand(payload);

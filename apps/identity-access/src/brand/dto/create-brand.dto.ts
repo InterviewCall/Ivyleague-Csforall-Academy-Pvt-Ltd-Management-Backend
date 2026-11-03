@@ -52,7 +52,8 @@ export const createBrandSchema = z.object({
             hasAtMostTwoDecimals,
             'gstRate may have at most 2 decimal places',
         )
-        .default(18).optional(),
+        .optional().default(18),
+
 
     placementPackageCeiling: money('placementPackageCeiling'),
 });
