@@ -17,6 +17,12 @@ export class AccessTokenRepository {
         return tx.accessToken.create({ data });
     }
 
+    findByTokenHash(tokenHash: string): Promise<AccessToken | null> {
+        return this.prisma.accessToken.findUnique({
+            where: { tokenHash },
+        });
+    }
+
     findByTokenHashAndPurpose(
         tokenHash: string,
         purpose: TokenPurpose,
