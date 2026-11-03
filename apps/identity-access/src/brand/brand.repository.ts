@@ -19,4 +19,10 @@ export class BrandRepository {
             },
         });
     }
+    update(id: number, data: Prisma.BrandUpdateInput): Promise<Brand> {
+        return this.prisma.brand.update({
+            where: { id },
+            data,
+        });
+    }
 }

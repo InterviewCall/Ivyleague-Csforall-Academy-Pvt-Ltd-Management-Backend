@@ -9,7 +9,8 @@ import {
 } from '@nestjs/common';
 import { BrandService } from './brand.service.js';
 import { CreateBrandDto, createBrandSchema } from './dto/create-brand.dto.js';
-import { UpdateBrandDto } from './dto/update-brand.dto.js';
+import { UpdateBrandDto , updateBrandSchema } from './dto/update-brand.dto.js';
+import { AccessRole, Roles } from '@app/rbac';
 
 @Controller('brands')
 export class BrandController {
@@ -30,8 +31,12 @@ export class BrandController {
         return this.brandService.findOne(+id);
     }
 
+    @Roles(AccessRole.ADMIN)
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
+    update(
+        @Param('id') id: string,
+        @Body({ schema: updateBrandSchema }) updateBrandDto: UpdateBrandDto,
+    ) {
         return this.brandService.update(+id, updateBrandDto);
     }
 
