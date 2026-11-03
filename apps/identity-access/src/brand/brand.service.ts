@@ -1,20 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 
 import { CreateBrandDto } from './dto/create-brand.dto.js';
 import { UpdateBrandDto } from './dto/update-brand.dto.js';
+import { GetBrandsQueryDto } from './dto/get-brands-query.dto.js';
 import { BrandRepository } from './brand.repository.js';
-import { Brand } from '@app/model/generated/prisma/client.js';
+import { Brand, Prisma} from '@app/model/generated/prisma/client.js';
 
 @Injectable()
 export class BrandService {
     constructor(private readonly brandRepository: BrandRepository) {}
 
-    createBrand(payload: CreateBrandDto): Promise<Brand> {
-        return this.brandRepository.create(payload);
+    async createBrand(payload: CreateBrandDto): Promise<Brand> {
+        try {
+            return await this.brandRepository.create(payload);
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
+                throw new ConflictException(
+                    'A brand with this code already exists',
+                );
+            }
+
+            throw error;
+        }
     }
 
-    findAll() {
-        return `This action returns all brand`;
+    async findAll(query: GetBrandsQueryDto): Promise<{
+        items: Brand[];
+        page: number;
+        pageSize: number;
+        totalItems: number;
+    }> {
+        const page = await this.brandRepository.findBrandPage(query);
+
+        return {
+            items: page.rows,
+            page: query.page,
+            pageSize: query.pageSize,
+            totalItems: page.count,
+        };
     }
 
     findOne(id: number) {
