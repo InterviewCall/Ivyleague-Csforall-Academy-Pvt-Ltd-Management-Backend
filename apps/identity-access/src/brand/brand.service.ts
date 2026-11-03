@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable,NotFoundException } from '@nestjs/common';
 
 import { CreateBrandDto } from './dto/create-brand.dto.js';
 import { UpdateBrandDto } from './dto/update-brand.dto.js';
 import { BrandRepository } from './brand.repository.js';
-import { Brand } from '@app/model/generated/prisma/client.js';
+import { Brand, Prisma} from '@app/model/generated/prisma/client.js';
 
 @Injectable()
 export class BrandService {
@@ -21,8 +21,19 @@ export class BrandService {
         return `This action returns a #${id} brand`;
     }
 
-    update(id: number, updateBrandDto: UpdateBrandDto) {
-        return `This action updates a #${id} brand`;
+    async update(id: number,updateBrandDto: UpdateBrandDto,): Promise<Brand> {
+        try {
+            return await this.brandRepository.update(id, updateBrandDto);
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
+                throw new NotFoundException(`Brand with ID ${id} not found`);
+            }
+
+            throw error;
+        }
     }
 
     remove(id: number) {
