@@ -2,9 +2,12 @@ import { Module } from '@nestjs/common';
 
 import { AccessTokenRepository } from './access-token.repository.js';
 import { AccessTokenService } from './access-token.service.js';
+import { InternalServiceAuthGuard } from './internal-service-auth.guard.js';
+import { AccessTokenController } from './access-token.controller.js';
 
 @Module({
-    providers: [AccessTokenRepository, AccessTokenService],
+    controllers: [AccessTokenController],
+    providers: [AccessTokenRepository, AccessTokenService , InternalServiceAuthGuard,],
     exports: [AccessTokenRepository, AccessTokenService],
 })
 export class AccessTokenModule {}

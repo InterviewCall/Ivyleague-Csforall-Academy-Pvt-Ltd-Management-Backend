@@ -1,11 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable , NotFoundException } from '@nestjs/common';
 import { createHash, randomBytes } from 'crypto';
 
 import { IssuedAccessToken } from './types/issues-access-token.type.js';
 import { DEFAULT_TTL_HOURS } from './constants/index.js';
+import { ModelService } from '@app/model';
+import { Prisma } from '@app/model/generated/prisma/client.js';
+
+import { AccessTokenRepository } from './access-token.repository.js';
+import { CreateAccessTokenDto } from './dto/create-access-token.dto.js';
 
 @Injectable()
 export class AccessTokenService {
+    constructor(
+        private readonly modelService: ModelService,
+        private readonly accessTokenRepository: AccessTokenRepository,
+    ) {}
+
     hash(token: string): string {
         return createHash('sha256').update(token).digest('hex');
     }
@@ -27,5 +37,43 @@ export class AccessTokenService {
             process.env.ACTIVATION_URL_BASE ?? 'http://localhost:4000/activate';
 
         return `${base}/${token}`;
+    }
+
+    async createAccessToken(payload: CreateAccessTokenDto) {
+        try {
+            const issuedToken = this.issue();
+
+            const accessToken = await this.modelService.$transaction((tx) =>
+                this.accessTokenRepository.create(
+                    {
+                        tokenHash: issuedToken.tokenHash,
+                        purpose: payload.purpose,
+                        expiresAt: issuedToken.expiresAt,
+                        user: {
+                            connect: {
+                                id: payload.userId,
+                            },
+                        },
+                    },
+                    tx,
+                ),
+            );
+
+            return {
+                token: issuedToken.token,
+                purpose: accessToken.purpose,
+                userId: accessToken.userId,
+                expiresAt: accessToken.expiresAt,
+            };
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
+                throw new NotFoundException('User not found');
+            }
+
+            throw error;
+        }
     }
 }
