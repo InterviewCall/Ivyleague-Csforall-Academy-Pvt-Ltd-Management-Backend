@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 import { ModelService } from '@app/model';
-import { Prisma } from '@app/model/generated/prisma/client.js';
+import {LearnerLifecycle, LearnerLifecycleStatus, Prisma,} from '@app/model/generated/prisma/client.js';
 
+    
 import type { ListLearnersQueryDto } from './dto/list-learners.query.js';
 
 @Injectable()
@@ -56,5 +57,28 @@ export class LearnerRepository {
         ]);
 
         return { rows, total };
+    }
+
+    findById(id: number): Promise<LearnerLifecycle | null> {
+        return this.prisma.learnerLifecycle.findUnique({
+            where: { id },
+        });
+    }
+
+    updateStatus(
+        id: number,
+        status: LearnerLifecycleStatus,
+        reason: string,
+        updatedByUserId: number,
+    ): Promise<LearnerLifecycle> {
+        return this.prisma.learnerLifecycle.update({
+            where: { id },
+            data: {
+                currentStatus: status,
+                statusUpdateReason: reason,
+                statusUpdatedAt: new Date(),
+                statusUpdatedByUserId: updatedByUserId,
+            },
+        });
     }
 }

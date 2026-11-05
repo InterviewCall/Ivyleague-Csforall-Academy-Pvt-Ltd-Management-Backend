@@ -1,13 +1,9 @@
-import { Controller, Get, Query } from '@nestjs/common';
-
-import { AccessRole, Roles } from '@app/rbac';
-
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Query } from '@nestjs/common';
+import { AccessRole, CurrentUser, Roles } from '@app/rbac';
+import type { Principal } from '@app/rbac';
 import { LearnerService } from './learner.service.js';
-import {
-    listLearnersQuerySchema,
-} from './dto/list-learners.query.js';
-import type { ListLearnersQueryDto } from './dto/list-learners.query.js';
-
+import { listLearnersQuerySchema, type ListLearnersQueryDto } from './dto/list-learners.query.js';
+import { updateLearnerStatusSchema, type UpdateLearnerStatusDto } from './dto/update-learner-status.dto.js';
 @Controller('learners')
 export class LearnerController {
     constructor(
@@ -27,5 +23,20 @@ export class LearnerController {
         query: ListLearnersQueryDto,
     ) {
         return this.learnerService.findLearners(query);
+    }
+
+    @Roles(AccessRole.ACADEMIC_HEAD)
+    @Patch(':id/status')
+    updateLearnerStatus(
+        @Param('id', ParseIntPipe) learnerId: number,
+        @Body({ schema: updateLearnerStatusSchema })
+        payload: UpdateLearnerStatusDto,
+        @CurrentUser() actor: Principal,
+    ) {
+        return this.learnerService.updateLearnerStatus(
+            learnerId,
+            payload,
+            actor.userId,
+        );
     }
 }

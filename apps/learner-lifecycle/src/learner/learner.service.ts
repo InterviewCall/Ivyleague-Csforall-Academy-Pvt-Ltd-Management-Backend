@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable ,NotFoundException, } from '@nestjs/common';
 
 import { LearnerRepository } from './learner.repository.js';
 import type { ListLearnersQueryDto } from './dto/list-learners.query.js';
+import type { LearnerLifecycle } from '@app/model/generated/prisma/client.js';
+import type { UpdateLearnerStatusDto } from './dto/update-learner-status.dto.js';
 
 @Injectable()
 export class LearnerService {
@@ -36,5 +38,32 @@ export class LearnerService {
                 totalPages: Math.ceil(total / limit),
             },
         };
+    }
+
+    async updateLearnerStatus(
+        learnerId: number,
+        payload: UpdateLearnerStatusDto,
+        actorUserId: string,
+    ): Promise<LearnerLifecycle> {
+        const learner: LearnerLifecycle | null =
+            await this.learnerRepository.findById(learnerId);
+
+        if (!learner) {
+            throw new NotFoundException('Learner not found');
+        }
+
+        if (learner.currentStatus === payload.status) {
+            return learner;
+        }
+
+        const updated: LearnerLifecycle =
+            await this.learnerRepository.updateStatus(
+                learner.id,
+                payload.status,
+                payload.reason,
+                Number(actorUserId),
+            );
+
+        return updated;
     }
 }

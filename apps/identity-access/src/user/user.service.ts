@@ -4,6 +4,7 @@ import {
     ConflictException,
     Injectable,
     NotFoundException,
+    UnauthorizedException,
 } from '@nestjs/common';
 
 import { ModelService } from '@app/model';
