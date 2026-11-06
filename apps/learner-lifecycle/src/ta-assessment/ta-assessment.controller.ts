@@ -1,4 +1,4 @@
-import { Body, Controller, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Param, ParseIntPipe, Post ,Get, ForbiddenException } from '@nestjs/common';
 
 import { AccessRole, CurrentUser, Roles } from '@app/rbac';
 import type { Principal } from '@app/rbac';
@@ -21,6 +21,18 @@ export class TaAssessmentController {
             learnerId,
             payload,
             Number(actor.userId),
+        );
+    }
+
+    @Roles(AccessRole.LEARNER)
+    @Get('summary')
+    getSummary(
+        @Param('learnerId', ParseIntPipe) learnerId: number,
+        @CurrentUser() actor: Principal,
+    ) {
+        return this.taAssessmentService.getSummary(
+            learnerId,
+            actor.userId,
         );
     }
 }

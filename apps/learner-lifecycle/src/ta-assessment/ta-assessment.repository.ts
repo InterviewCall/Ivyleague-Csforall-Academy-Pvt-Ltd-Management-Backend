@@ -35,4 +35,12 @@ export class TaAssessmentRepository {
             },
         });
     }
+
+    findSummaryByLearnerId(learnerId: number) {
+        return this.prisma.taAssessment.findMany({
+            where: { learnerId },
+            select: { sessionNumber: true, learnerFacingSummary: true },
+            orderBy: { sessionNumber: 'asc' },
+        });
+    }
 }
