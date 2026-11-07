@@ -42,6 +42,15 @@
         "tsConfigPath": "apps/identity-access/tsconfig.app.json"
       }
     },
+    "learner-lifecycle": {
+      "type": "application",
+      "root": "apps/learner-lifecycle",
+      "entryFile": "main",
+      "sourceRoot": "apps/learner-lifecycle/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/learner-lifecycle/tsconfig.app.json"
+      }
+    },
     "model": {
       "type": "library",
       "root": "libs/model",
