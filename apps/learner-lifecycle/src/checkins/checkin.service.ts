@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { CheckinRepository } from './checkin.repository.js';
 import { CreateCheckinDto } from './dto/create-checkin.dto.js';
+import type { ListDueCheckinsQueryDto } from './dto/list-due-checkins.query.js';
 
 @Injectable()
 export class CheckinService {
@@ -23,5 +24,19 @@ export class CheckinService {
             learnerId,
             psaUserId,
         });
+    }
+
+    async findDueCheckins(query: ListDueCheckinsQueryDto) {
+        const [data, total] = await this.checkinRepository.findDueCheckins(query);
+
+        return {
+            data,
+            meta: {
+                page: query.page,
+                limit: query.limit,
+                total,
+                totalPages: Math.ceil(total / query.limit),
+            },
+        };
     }
 }

@@ -50,6 +50,7 @@ model LearnerLifecycle {
     riskFlags RiskFlag[]
     dsaReviews DsaReview[]
     offboardings Offboarding[]
+    checkins Checkin[]
 
     @@map("learner_lifecycles")
 }
@@ -155,6 +156,8 @@ model Checkin {
     psaUserId        Int       @map("psa_user_id")
     createdAt       DateTime  @default(now()) @map("created_at")
 
+    learnerLifecycle LearnerLifecycle @relation(fields: [learnerId], references: [id], onDelete: Restrict)
+    
     @@index([learnerId])
     @@index([scheduledDate])
     @@map("checkins")

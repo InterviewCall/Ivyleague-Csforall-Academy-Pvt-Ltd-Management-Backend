@@ -1,8 +1,10 @@
 import {
     Body,
     Controller,
+    Get,
     Param,
     Post,
+    Query,
     UnauthorizedException,
 } from '@nestjs/common';
 
@@ -18,15 +20,17 @@ import {
     createCheckinSchema,
     learnerIdParamSchema,
 } from './dto/create-checkin.dto.js';
+import {
+    ListDueCheckinsQueryDto,
+    listDueCheckinsQuerySchema,
+} from './dto/list-due-checkins.query.js';
 import { CheckinService } from './checkin.service.js';
 
-@Controller('learners')
+@Controller()
 export class CheckinController {
-    constructor(
-        private readonly checkinService: CheckinService,
-    ) {}
+    constructor(private readonly checkinService: CheckinService) {}
 
-    @Post(':id/checkins')
+    @Post('learners/:id/checkins')
     @Roles(AccessRole.PSA)
     createCheckin(
         @Param('id', { schema: learnerIdParamSchema })
@@ -44,5 +48,14 @@ export class CheckinController {
             payload,
             Number(actor.userId),
         );
+    }
+
+    @Get('checkins/due')
+    @Roles(AccessRole.PSA)
+    findDueCheckins(
+        @Query({ schema: listDueCheckinsQuerySchema })
+        query: ListDueCheckinsQueryDto,
+    ) {
+        return this.checkinService.findDueCheckins(query);
     }
 }
