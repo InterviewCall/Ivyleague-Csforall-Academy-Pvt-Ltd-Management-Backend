@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Learner At-Risk Alert</title>
+</head>
+
+<body
+    style="
+        margin:0;
+        padding:0;
+        background:#f5f7fb;
+        font-family:Arial,Helvetica,sans-serif;
+        color:#1f2937;
+    "
+>
+    <table
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="background:#f5f7fb;"
+    >
+        <tr>
+            <td
+                align="center"
+                style="padding:40px 16px;"
+            >
+                <table
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                        max-width:620px;
+                        background:#ffffff;
+                        border-radius:12px;
+                        border:1px solid #e5e7eb;
+                    "
+                >
+                    <tr>
+                        <td style="padding:32px;">
+
+                            <h1
+                                style="
+                                    margin:0 0 20px;
+                                    font-size:24px;
+                                    line-height:32px;
+                                    color:#dc2626;
+                                "
+                            >
+                                Learner At-Risk Alert
+                            </h1>
+
+                            <p
+                                style="
+                                    margin:0 0 20px;
+                                    font-size:15px;
+                                    line-height:24px;
+                                "
+                            >
+                                A learner has been
+                                flagged as academically
+                                at-risk.
+                            </p>
+
+                            <table
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                style="
+                                    background:#f8fafc;
+                                    border:1px solid #e5e7eb;
+                                    border-radius:8px;
+                                "
+                            >
+                                <tr>
+                                    <td style="padding:16px;">
+
+                                        <p
+                                            style="
+                                                margin:0 0 8px;
+                                            "
+                                        >
+                                            <strong>
+                                                Learner ID:
+                                            </strong>
+
+                                            {{learnerId}}
+                                        </p>
+
+                                        <p
+                                            style="
+                                                margin:0 0 8px;
+                                            "
+                                        >
+                                            <strong>
+                                                Risk Flag ID:
+                                            </strong>
+
+                                            {{riskFlagId}}
+                                        </p>
+
+                                        <p
+                                            style="
+                                                margin:0;
+                                            "
+                                        >
+                                            <strong>
+                                                Flagged At:
+                                            </strong>
+
+                                            {{flaggedAt}}
+                                        </p>
+
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <h3
+                                style="
+                                    margin:24px 0 8px;
+                                "
+                            >
+                                Reason
+                            </h3>
+
+                            <p
+                                style="
+                                    margin:0 0 24px;
+                                    font-size:15px;
+                                    line-height:24px;
+                                "
+                            >
+                                {{reason}}
+                            </p>
+
+                            <p
+                                style="
+                                    margin:0;
+                                    font-size:15px;
+                                    line-height:24px;
+                                "
+                            >
+                                Please review the learner's
+                                current academic situation
+                                and follow the defined
+                                outreach process.
+                            </p>
+
+                            <p
+                                style="
+                                    margin:28px 0 0;
+                                    font-size:15px;
+                                    line-height:24px;
+                                "
+                            >
+                                Regards,<br />
+
+                                Ivyleague Academy Team
+                            </p>
+
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
