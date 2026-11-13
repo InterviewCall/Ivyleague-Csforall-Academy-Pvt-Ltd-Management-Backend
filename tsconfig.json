@@ -48,8 +48,16 @@
       ]
     }
   },
-  "exclude": [
-    "node_modules",
-    "dist"
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/identity-access/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/support-cases/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/learner-lifecycle/tsconfig.app.json"
+    }
   ]
 }

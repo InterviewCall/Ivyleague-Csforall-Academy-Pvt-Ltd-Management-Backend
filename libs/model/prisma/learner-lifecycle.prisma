@@ -31,7 +31,7 @@ enum PlacementOutcome {
 
 model LearnerLifecycle {
     id                    Int                    @id @default(autoincrement())
-    userId                Int                    @map("user_id")
+    userId                Int                    @unique @map("user_id")
     brandId               Int                    @map("brand_id")
     currentStatus         LearnerLifecycleStatus @default(PENDING_PAYMENT) @map("current_status")
     statusUpdatedAt       DateTime               @map("status_updated_at")
