@@ -20,6 +20,8 @@ export type AccessRole = (typeof AccessRole)[keyof typeof AccessRole];
 
 export const ACCESS_ROLES = new Set<string>(Object.values(AccessRole));
 
+export const STAFF_ROLES: AccessRole[] = Object.values(StaffRole);
+
 export function isAccessRole(value: string): value is AccessRole {
     return ACCESS_ROLES.has(value);
 }
