@@ -42,6 +42,15 @@
         "tsConfigPath": "apps/identity-access/tsconfig.app.json"
       }
     },
+    "learner-lifecycle": {
+      "type": "application",
+      "root": "apps/learner-lifecycle",
+      "entryFile": "main",
+      "sourceRoot": "apps/learner-lifecycle/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/learner-lifecycle/tsconfig.app.json"
+      }
+    },
     "model": {
       "type": "library",
       "root": "libs/model",
@@ -58,6 +67,15 @@
       "sourceRoot": "libs/rbac/src",
       "compilerOptions": {
         "tsConfigPath": "libs/rbac/tsconfig.lib.json"
+      }
+    },
+    "support-cases": {
+      "type": "application",
+      "root": "apps/support-cases",
+      "entryFile": "main",
+      "sourceRoot": "apps/support-cases/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/support-cases/tsconfig.app.json"
       }
     }
   }
